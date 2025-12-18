@@ -6,6 +6,10 @@
     <title>NUAR Studio | Конструктор для стримеров</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- ИКОНКА ВКЛАДКИ -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><defs><linearGradient id=%22brainGrad%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22><stop offset=%220%25%22 style=%22stop-color:%2300f3ff;stop-opacity:1%22/><stop offset=%22100%25%22 style=%22stop-color:%23ff00ff;stop-opacity:1%22/></linearGradient></defs><path d=%22M50,20 Q70,25 75,40 Q80,55 70,70 Q60,85 50,80 Q40,85 30,70 Q20,55 25,40 Q30,25 50,20Z%22 fill=%22url(%23brainGrad)%22 stroke=%22%2300f3ff%22 stroke-width=%222%22/><circle cx=%2250%22 cy=%2240%22 r=%225%22 fill=%22white%22/><path d=%22M40,55 Q50,60 60,55%22 stroke=%22%23ff00ff%22 stroke-width=%222%22 fill=%22none%22/></svg>">
+    
     <style>
         :root {
             --neon-blue: #00f3ff;
@@ -44,7 +48,7 @@
             100% { background-position: 120px 120px; }
         }
         
-        /* НАВИГАЦИЯ */
+        /* НАВИГАЦИЯ С ЛОГОТИПОМ */
         .navbar {
             background: rgba(10, 15, 30, 0.98);
             padding: 1rem 2rem;
@@ -58,6 +62,12 @@
             z-index: 1000;
         }
         
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
         .logo {
             font-family: 'Orbitron', sans-serif;
             font-size: 2rem;
@@ -65,7 +75,21 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-weight: 800;
+        }
+        
+        .logo-icon {
+            color: #00f3ff;
+            animation: spinSlow 10s linear infinite;
+            font-size: 2.5rem;
+        }
+        
+        @keyframes spinSlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         /* ОСНОВНОЙ КОНТЕЙНЕР */
@@ -451,7 +475,11 @@
     
     <!-- НАВИГАЦИЯ -->
     <nav class="navbar">
-        <div class="logo">NUAR STUDIO</div>
+        <div class="logo-container">
+            <div class="logo">
+                <i class="fas fa-brain logo-icon"></i> NUAR STUDIO
+            </div>
+        </div>
         <button class="btn-secondary" id="subscriptionBtn" style="padding: 10px 20px;">
             <i class="fas fa-crown"></i> PRO ВЕРСИЯ
         </button>
@@ -494,6 +522,19 @@
                         <div class="color-option" style="background:#ff5500;" data-color="#ff5500"></div>
                         <div class="color-option" style="background:#9d00ff;" data-color="#9d00ff"></div>
                         <div class="color-option" style="background:#ff009d;" data-color="#ff009d"></div>
+                    </div>
+                </div>
+                
+                <!-- ВЫБОР ЦВЕТА ФОНА (ДОБАВЛЕНО) -->
+                <div class="control-item">
+                    <label>Цвет фона:</label>
+                    <div class="color-grid">
+                        <div class="color-option active" style="background:#0a0a14;" data-bg-color="#0a0a14" title="Темный фон"></div>
+                        <div class="color-option" style="background:#000000;" data-bg-color="#000000" title="Черный"></div>
+                        <div class="color-option" style="background:#111827;" data-bg-color="#111827" title="Серо-синий"></div>
+                        <div class="color-option" style="background:#1a1a2e;" data-bg-color="#1a1a2e" title="Фиолетово-черный"></div>
+                        <div class="color-option" style="background:#16213e;" data-bg-color="#16213e" title="Темно-синий"></div>
+                        <div class="color-option" style="background:#0f3460;" data-bg-color="#0f3460" title="Синий"></div>
                     </div>
                 </div>
             </div>
@@ -584,6 +625,7 @@
             mainText: 'CYBERSTREAMER LIVE',
             subText: 'Играет в Cyberpunk 2077',
             color: '#00f3ff',
+            backgroundColor: '#0a0a14', // Добавлен цвет фона
             glowStrength: 25,
             bgAnimation: 'grid',
             isSubscribed: false,
@@ -601,6 +643,7 @@
             glowValue: document.getElementById('glowValue'),
             bgAnimation: document.getElementById('bgAnimation'),
             colorOptions: document.querySelectorAll('.color-option'),
+            bgColorOptions: document.querySelectorAll('.color-option[data-bg-color]'), // Добавлены цвета фона
             downloadSimpleBtn: document.getElementById('downloadSimpleBtn'),
             downloadFullBtn: document.getElementById('downloadFullBtn'),
             downloadGifBtn: document.getElementById('downloadGifBtn'),
@@ -651,13 +694,25 @@
                 updatePreview();
             });
             
-            // Цвета
+            // Цвета текста
             elements.colorOptions.forEach(option => {
+                if (option.dataset.color) {
+                    option.addEventListener('click', (e) => {
+                        elements.colorOptions.forEach(o => o.classList.remove('active'));
+                        e.target.classList.add('active');
+                        state.color = e.target.dataset.color;
+                        updatePreview();
+                        drawBackground();
+                    });
+                }
+            });
+            
+            // Цвета фона (ДОБАВЛЕНО)
+            elements.bgColorOptions.forEach(option => {
                 option.addEventListener('click', (e) => {
-                    elements.colorOptions.forEach(o => o.classList.remove('active'));
+                    elements.bgColorOptions.forEach(o => o.classList.remove('active'));
                     e.target.classList.add('active');
-                    state.color = e.target.dataset.color;
-                    updatePreview();
+                    state.backgroundColor = e.target.dataset.bgColor;
                     drawBackground();
                 });
             });
@@ -726,8 +781,8 @@
             const height = elements.canvas.height;
             const time = Date.now() * 0.001;
             
-            // Очищаем канвас
-            ctx.fillStyle = '#0a0a14';
+            // Очищаем канвас с выбранным цветом фона
+            ctx.fillStyle = state.backgroundColor;
             ctx.fillRect(0, 0, width, height);
             
             // Рисуем выбранный фон
@@ -867,8 +922,8 @@
                 
                 if (!ctx) throw new Error('Не удалось создать canvas');
                 
-                // Фон
-                ctx.fillStyle = '#0a0a14';
+                // Фон с выбранным цветом
+                ctx.fillStyle = state.backgroundColor;
                 ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
                 
                 // Фоновые эффекты
@@ -961,6 +1016,7 @@
     font-size: 5rem;
     color: ${state.color};
     text-shadow: 0 0 ${state.glowStrength}px ${state.color};
+    background: ${state.backgroundColor};
 }`;
             
             navigator.clipboard.writeText(css).then(() => {
@@ -970,11 +1026,13 @@
         
         function randomDesign() {
             const colors = ['#00f3ff', '#ff00ff', '#00ff9d', '#ff5500', '#9d00ff', '#ff009d'];
+            const bgColors = ['#0a0a14', '#000000', '#111827', '#1a1a2e', '#16213e', '#0f3460'];
             const bgAnimations = ['none', 'grid', 'particles', 'waves', 'circuits', 'scan'];
             const mainTexts = ['CYBERSTREAMER LIVE', 'NEON NIGHTS', 'SYNTHWAVE RADIO', 'GAME ZONE', 'TECH TALK'];
             const subTexts = ['Прямой эфир 24/7', 'Играю в лучшие игры', 'Создаю цифровое искусство', 'Обсуждаю технологии'];
             
             state.color = colors[Math.floor(Math.random() * colors.length)];
+            state.backgroundColor = bgColors[Math.floor(Math.random() * bgColors.length)];
             state.glowStrength = 15 + Math.floor(Math.random() * 35);
             state.bgAnimation = bgAnimations[Math.floor(Math.random() * bgAnimations.length)];
             state.mainText = mainTexts[Math.floor(Math.random() * mainTexts.length)];
@@ -983,6 +1041,10 @@
             // Обновляем UI
             elements.colorOptions.forEach(o => o.classList.remove('active'));
             document.querySelector(`[data-color="${state.color}"]`).classList.add('active');
+            
+            elements.bgColorOptions.forEach(o => o.classList.remove('active'));
+            document.querySelector(`[data-bg-color="${state.backgroundColor}"]`).classList.add('active');
+            
             elements.glowStrength.value = state.glowStrength;
             elements.glowValue.textContent = state.glowStrength;
             elements.bgAnimation.value = state.bgAnimation;
@@ -999,11 +1061,16 @@
             state.mainText = 'CYBERSTREAMER LIVE';
             state.subText = 'Играет в Cyberpunk 2077';
             state.color = '#00f3ff';
+            state.backgroundColor = '#0a0a14';
             state.glowStrength = 25;
             state.bgAnimation = 'grid';
             
             elements.colorOptions.forEach(o => o.classList.remove('active'));
             document.querySelector(`[data-color="#00f3ff"]`).classList.add('active');
+            
+            elements.bgColorOptions.forEach(o => o.classList.remove('active'));
+            document.querySelector(`[data-bg-color="#0a0a14"]`).classList.add('active');
+            
             elements.glowStrength.value = 25;
             elements.glowValue.textContent = '25';
             elements.bgAnimation.value = 'grid';
