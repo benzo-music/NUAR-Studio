@@ -6,8 +6,11 @@
     <title>NUAR Studio | Киберпанк-конструктор для стримеров</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <!-- ИКОНКА ВКЛАДКИ -->
+    <!-- ИКОНКА ВКЛАДКИ (ВОЗВРАЩЕНА) -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><defs><linearGradient id=%22brainGrad%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22><stop offset=%220%25%22 style=%22stop-color:%2300f3ff;stop-opacity:1%22/><stop offset=%22100%25%22 style=%22stop-color:%23ff00ff;stop-opacity:1%22/></linearGradient></defs><path d=%22M50,20 Q70,25 75,40 Q80,55 70,70 Q60,85 50,80 Q40,85 30,70 Q20,55 25,40 Q30,25 50,20Z%22 fill=%22url(%23brainGrad)%22 stroke=%22%2300f3ff%22 stroke-width=%222%22/><circle cx=%2250%22 cy=%2240%22 r=%225%22 fill=%22white%22/><path d=%22M40,55 Q50,60 60,55%22 stroke=%22%23ff00ff%22 stroke-width=%222%22 fill=%22none%22/></svg>">
+    <!-- Библиотека для GIF -->
+    <script src="https://unpkg.com/gif.js@0.2.0/dist/gif.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js"></script>
     <style>
         :root {
             --neon-blue: #00f3ff;
@@ -27,7 +30,6 @@
             overflow-x: hidden;
         }
 
-        /* КИБЕР СЕТКА НА ФОНЕ */
         .cyber-bg {
             position: fixed;
             top: 0;
@@ -48,7 +50,6 @@
             100% { background-position: 120px 120px; }
         }
 
-        /* НАВИГАЦИЯ С ЭКОСИСТЕМОЙ NUAR */
         .navbar {
             background: rgba(10, 15, 30, 0.98);
             padding: 1rem 2rem;
@@ -118,7 +119,6 @@
             box-shadow: 0 5px 20px rgba(0, 243, 255, 0.2);
         }
 
-        /* ОСНОВНОЙ КОНТЕЙНЕР */
         .main-container {
             display: grid;
             grid-template-columns: 350px 1fr 300px;
@@ -129,7 +129,6 @@
             min-height: calc(100vh - 80px);
         }
 
-        /* ЛЕВАЯ ПАНЕЛЬ - НАСТРОЙКИ */
         .settings-panel {
             background: var(--panel-bg);
             border-radius: 20px;
@@ -153,7 +152,6 @@
             padding-bottom: 10px;
         }
 
-        /* КАТЕГОРИИ ЭФФЕКТОВ */
         .category {
             margin-bottom: 2rem;
         }
@@ -168,7 +166,6 @@
             font-size: 1rem;
         }
 
-        /* ЭЛЕМЕНТЫ УПРАВЛЕНИЯ */
         .control-item {
             margin-bottom: 1.2rem;
         }
@@ -198,7 +195,6 @@
             box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
         }
 
-        /* ЧЕКБОКСЫ */
         .checkbox-container {
             display: flex;
             align-items: center;
@@ -212,7 +208,6 @@
             accent-color: #00f3ff;
         }
 
-        /* ЦВЕТА */
         .color-grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
@@ -238,7 +233,6 @@
             box-shadow: 0 0 15px currentColor;
         }
 
-        /* ГЛАВНАЯ ОБЛАСТЬ - ПРЕДПРОСМОТР */
         .preview-section {
             display: flex;
             flex-direction: column;
@@ -261,7 +255,6 @@
             overflow: hidden;
         }
 
-        /* КАНВАС ДЛЯ РЕНДЕРИНГА */
         #renderCanvas {
             position: absolute;
             top: 0;
@@ -272,7 +265,6 @@
             pointer-events: none;
         }
 
-        /* СТИКЕРЫ И ЭФФЕКТЫ НА ПРЕДПРОСМОТРЕ */
         .sticker {
             position: absolute;
             font-size: 2rem;
@@ -286,7 +278,6 @@
             50% { transform: translateY(-20px) rotate(5deg); }
         }
 
-        /* ПРАВАЯ ПАНЕЛЬ - ШАБЛОНЫ */
         .templates-panel {
             background: var(--panel-bg);
             border-radius: 20px;
@@ -332,7 +323,6 @@
             display: block;
         }
 
-        /* ЖИВОЙ ПРЕДПРОСМОТР ТЕКСТА */
         .live-text {
             font-family: 'Orbitron', sans-serif;
             font-size: 3.5rem;
@@ -361,7 +351,6 @@
             font-size: 3.5rem;
             font-weight: bold;
             margin-bottom: 0.5rem;
-            animation: textGlow 2s infinite;
         }
 
         .sub-preview {
@@ -374,12 +363,44 @@
             display: none;
         }
 
-        @keyframes textGlow {
-            0%, 100% { text-shadow: 0 0 20px currentColor; }
-            50% { text-shadow: 0 0 40px currentColor; }
+        @keyframes pulseGlow {
+            0%, 100% { 
+                text-shadow: 0 0 10px currentColor, 
+                           0 0 20px currentColor,
+                           0 0 30px currentColor; 
+            }
+            50% { 
+                text-shadow: 0 0 20px currentColor, 
+                           0 0 40px currentColor,
+                           0 0 60px currentColor; 
+            }
         }
 
-        /* КНОПКИ ДЕЙСТВИЙ */
+        @keyframes doubleGlow {
+            0%, 100% { 
+                text-shadow: 0 0 10px currentColor, 
+                           0 0 20px currentColor; 
+            }
+            50% { 
+                text-shadow: 0 0 20px currentColor, 
+                           0 0 40px currentColor; 
+            }
+        }
+
+        @keyframes neonRainbow {
+            0% { text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; }
+            25% { text-shadow: 0 0 10px #00f3ff, 0 0 20px #00f3ff; }
+            50% { text-shadow: 0 0 10px #00ff9d, 0 0 20px #00ff9d; }
+            75% { text-shadow: 0 0 10px #ff5500, 0 0 20px #ff5500; }
+            100% { text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; }
+        }
+
+        @keyframes glitchEffect {
+            0% { text-shadow: 2px 2px 10px currentColor, -2px -2px 10px currentColor; }
+            50% { text-shadow: -2px 2px 10px currentColor, 2px -2px 10px currentColor; }
+            100% { text-shadow: 2px 2px 10px currentColor, -2px -2px 10px currentColor; }
+        }
+
         .action-buttons {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -431,7 +452,6 @@
             box-shadow: 0 10px 25px rgba(0, 243, 255, 0.4);
         }
 
-        /* СТАТУС БАР */
         .status-bar {
             background: rgba(0, 10, 20, 0.8);
             padding: 1rem;
@@ -466,7 +486,6 @@
             50% { opacity: 0.5; }
         }
 
-        /* УВЕДОМЛЕНИЯ */
         .nuar-notification {
             position: fixed;
             top: 100px;
@@ -497,7 +516,6 @@
             to { transform: translateX(100%); opacity: 0; }
         }
 
-        /* ПРОГРЕСС БАР */
         .progress-container {
             position: fixed;
             top: 0;
@@ -535,7 +553,6 @@
             font-size: 1.2rem;
         }
 
-        /* АДАПТИВНОСТЬ */
         @media (max-width: 1400px) {
             .main-container { grid-template-columns: 300px 1fr; }
             .templates-panel { display: none; }
@@ -555,21 +572,18 @@
     </style>
 </head>
 <body>
-    <!-- ФОН -->
     <div class="cyber-bg"></div>
 
-    <!-- ПРОГРЕСС БАР -->
     <div class="progress-container" id="progressContainer">
         <div class="progress-text" id="progressText">Создаем GIF... 0%</div>
         <div class="progress-bar">
             <div class="progress-fill" id="progressFill"></div>
         </div>
         <div style="color: #a0b8d0; font-size: 0.9rem; text-align: center; max-width: 300px;">
-            Подождите 5-10 секунд<br>Создаем анимацию с вашими настройками
+            Подождите 10-15 секунд<br>Создаем анимацию с вашими настройками
         </div>
     </div>
 
-    <!-- НАВИГАЦИЯ -->
     <nav class="navbar">
         <div class="logo-container">
             <div class="logo">
@@ -581,22 +595,18 @@
         </div>
         
         <div class="ecosystem-links">
-            <!-- ИСПРАВЛЕННАЯ ССЫЛКА НА ПЕРЕВОДЧИК -->
             <a href="https://benzo-music.github.io/NUAR/" target="_blank" class="ecosystem-btn">
                 <i class="fas fa-language"></i> Переводчик
             </a>
         </div>
     </nav>
 
-    <!-- ОСНОВНОЙ КОНТЕЙНЕР -->
     <div class="main-container">
-        <!-- ЛЕВАЯ ПАНЕЛЬ: НАСТРОЙКИ -->
         <div class="settings-panel">
             <div class="panel-title">
                 <i class="fas fa-sliders-h"></i> НАСТРОЙКИ ДИЗАЙНА
             </div>
 
-            <!-- ТЕКСТ -->
             <div class="category">
                 <div class="category-title">
                     <i class="fas fa-font"></i> ТЕКСТ
@@ -609,7 +619,6 @@
                     <label>Второстепенный текст:</label>
                     <input type="text" id="subText" value="Играет в Cyberpunk 2077" maxlength="40">
                 </div>
-                <!-- ДОБАВЛЕН ЧЕКБОКС ДЛЯ СКРЫТИЯ ПОДТЕКСТА -->
                 <div class="control-item">
                     <div class="checkbox-container">
                         <input type="checkbox" id="hideSubText" checked>
@@ -618,7 +627,6 @@
                 </div>
             </div>
 
-            <!-- ЦВЕТА -->
             <div class="category">
                 <div class="category-title">
                     <i class="fas fa-palette"></i> ЦВЕТА
@@ -626,7 +634,6 @@
                 <div class="control-item">
                     <label>Цвет текста:</label>
                     <div class="color-grid">
-                        <!-- 12 неоновых цветов -->
                         <div class="color-option active" style="background:#00f3ff;" data-color="#00f3ff"></div>
                         <div class="color-option" style="background:#ff00ff;" data-color="#ff00ff"></div>
                         <div class="color-option" style="background:#00ff9d;" data-color="#00ff9d"></div>
@@ -641,9 +648,20 @@
                         <div class="color-option" style="background:#cc33ff;" data-color="#cc33ff"></div>
                     </div>
                 </div>
+                <!-- НОВАЯ НАСТРОЙКА: Цвет фона -->
+                <div class="control-item">
+                    <label>Цвет фона:</label>
+                    <div class="color-grid">
+                        <div class="color-option" style="background:#0a0a14;" data-bg-color="#0a0a14" title="Темный фон"></div>
+                        <div class="color-option" style="background:#000000;" data-bg-color="#000000" title="Черный"></div>
+                        <div class="color-option" style="background:#111827;" data-bg-color="#111827" title="Серо-синий"></div>
+                        <div class="color-option active" style="background:#1a1a2e;" data-bg-color="#1a1a2e" title="Фиолетово-черный"></div>
+                        <div class="color-option" style="background:#16213e;" data-bg-color="#16213e" title="Темно-синий"></div>
+                        <div class="color-option" style="background:#0f3460;" data-bg-color="#0f3460" title="Синий"></div>
+                    </div>
+                </div>
             </div>
 
-            <!-- ЭФФЕКТЫ -->
             <div class="category">
                 <div class="category-title">
                     <i class="fas fa-magic"></i> ЭФФЕКТЫ
@@ -662,7 +680,6 @@
                     <label>Сила свечения: <span id="glowValue">25</span>px</label>
                     <input type="range" id="glowStrength" min="5" max="60" value="25">
                 </div>
-                <!-- АНИМИРОВАННЫЕ ФОНЫ -->
                 <div class="control-item">
                     <label>Анимированный фон:</label>
                     <select id="bgAnimation">
@@ -678,7 +695,6 @@
                 </div>
             </div>
 
-            <!-- ДОПОЛНИТЕЛЬНО -->
             <div class="category">
                 <div class="category-title">
                     <i class="fas fa-plus-circle"></i> ДОПОЛНИТЕЛЬНО
@@ -700,13 +716,10 @@
             </div>
         </div>
 
-        <!-- ЦЕНТРАЛЬНАЯ ОБЛАСТЬ: ПРЕДПРОСМОТР -->
         <div class="preview-section">
             <div class="preview-container">
-                <!-- КАНВАС ДЛЯ РЕНДЕРИНГА ЭФФЕКТОВ -->
                 <canvas id="renderCanvas"></canvas>
                 
-                <!-- СТИКЕРЫ (ЭМОДЗИ) -->
                 <div class="sticker" id="sticker1" style="top:20%; left:10%;">
                     🎮
                 </div>
@@ -714,7 +727,6 @@
                     🎧
                 </div>
 
-                <!-- ЖИВОЙ ПРЕДПРОСМОТР -->
                 <div class="live-text">
                     <div class="text-container">
                         <div class="main-preview" id="mainPreview">CYBERSTREAMER LIVE</div>
@@ -722,7 +734,6 @@
                     </div>
                 </div>
 
-                <!-- КНОПКИ ДЕЙСТВИЙ -->
                 <div class="action-buttons">
                     <button class="action-btn btn-primary" id="downloadSimpleBtn">
                         <i class="fas fa-download"></i> СКАЧАТЬ PNG
@@ -730,7 +741,6 @@
                     <button class="action-btn btn-success" id="downloadFullBtn">
                         <i class="fas fa-image"></i> С ЭФФЕКТАМИ
                     </button>
-                    <!-- КНОПКА ДЛЯ НАСТОЯЩЕГО GIF -->
                     <button class="action-btn btn-warning" id="downloadGifBtn">
                         <i class="fas fa-film"></i> СКАЧАТЬ GIF
                     </button>
@@ -745,7 +755,6 @@
                     </button>
                 </div>
 
-                <!-- Статус бар -->
                 <div class="status-bar">
                     <div class="status-indicator">
                         <div class="status-dot"></div>
@@ -758,7 +767,6 @@
             </div>
         </div>
 
-        <!-- ПРАВАЯ ПАНЕЛЬ: ШАБЛОНЫ -->
         <div class="templates-panel">
             <div class="panel-title">
                 <i class="fas fa-layer-group"></i> ГОТОВЫЕ ШАБЛОНЫ
@@ -829,11 +837,11 @@
     </div>
 
     <script>
-        // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
         const state = {
             mainText: 'CYBERSTREAMER LIVE',
             subText: 'Играет в Cyberpunk 2077',
             color: '#00f3ff',
+            backgroundColor: '#1a1a2e',
             glowType: 'pulse',
             glowStrength: 25,
             bgAnimation: 'grid',
@@ -846,7 +854,6 @@
             showSubText: true
         };
 
-        // ========== DOM ЭЛЕМЕНТЫ ==========
         const elements = {
             canvas: document.getElementById('renderCanvas'),
             mainPreview: document.getElementById('mainPreview'),
@@ -863,6 +870,7 @@
             stickerSelect: document.getElementById('stickerSelect'),
             qrUrl: document.getElementById('qrUrl'),
             colorOptions: document.querySelectorAll('.color-option'),
+            bgColorOptions: document.querySelectorAll('.color-option[data-bg-color]'),
             templateCards: document.querySelectorAll('.template-card'),
             downloadSimpleBtn: document.getElementById('downloadSimpleBtn'),
             downloadFullBtn: document.getElementById('downloadFullBtn'),
@@ -878,7 +886,6 @@
             progressFill: document.getElementById('progressFill')
         };
 
-        // ========== ИНИЦИАЛИЗАЦИЯ ==========
         function init() {
             setupCanvas();
             setupEventListeners();
@@ -887,19 +894,16 @@
             showNotification('NUAR Studio загружен!', 'success');
         }
 
-        // ========== НАСТРОЙКА КАНВАСА ==========
         function setupCanvas() {
             const container = document.querySelector('.preview-container');
             if (container && elements.canvas) {
                 elements.canvas.width = container.clientWidth;
                 elements.canvas.height = container.clientHeight;
-                drawBackground(); // Рисуем фон сразу
+                drawBackground();
             }
         }
 
-        // ========== НАСТРОЙКА СОБЫТИЙ ==========
         function setupEventListeners() {
-            // Текст
             elements.mainText.addEventListener('input', (e) => {
                 state.mainText = e.target.value || 'Ваш текст';
                 updatePreview();
@@ -915,18 +919,27 @@
                 updatePreview();
             });
 
-            // Цвета
             elements.colorOptions.forEach(option => {
+                if (option.dataset.color) {
+                    option.addEventListener('click', (e) => {
+                        elements.colorOptions.forEach(o => o.classList.remove('active'));
+                        e.target.classList.add('active');
+                        state.color = e.target.dataset.color;
+                        updatePreview();
+                        drawBackground();
+                    });
+                }
+            });
+
+            elements.bgColorOptions.forEach(option => {
                 option.addEventListener('click', (e) => {
-                    elements.colorOptions.forEach(o => o.classList.remove('active'));
+                    elements.bgColorOptions.forEach(o => o.classList.remove('active'));
                     e.target.classList.add('active');
-                    state.color = e.target.dataset.color;
-                    updatePreview();
+                    state.backgroundColor = e.target.dataset.bgColor;
                     drawBackground();
                 });
             });
 
-            // Эффекты
             elements.glowType.addEventListener('change', (e) => {
                 state.glowType = e.target.value;
                 updatePreview();
@@ -935,7 +948,7 @@
             elements.glowStrength.addEventListener('input', (e) => {
                 state.glowStrength = parseInt(e.target.value);
                 elements.glowValue.textContent = state.glowStrength;
-                updatePreview();
+                updatePreview(); // ИСПРАВЛЕНО: Теперь обновляется при изменении
             });
             
             elements.bgAnimation.addEventListener('change', (e) => {
@@ -952,7 +965,6 @@
                 state.qrUrl = e.target.value;
             });
 
-            // Шаблоны
             elements.templateCards.forEach(card => {
                 card.addEventListener('click', (e) => {
                     elements.templateCards.forEach(c => c.classList.remove('active'));
@@ -962,7 +974,6 @@
                 });
             });
 
-            // Кнопки
             elements.downloadSimpleBtn.addEventListener('click', () => downloadImage(false));
             elements.downloadFullBtn.addEventListener('click', () => downloadImage(true));
             elements.downloadGifBtn.addEventListener('click', createRealAnimatedGif);
@@ -972,19 +983,25 @@
             elements.resetBtn.addEventListener('click', resetDesign);
             elements.exportJsonBtn.addEventListener('click', exportSettings);
 
-            // Адаптивность
             window.addEventListener('resize', () => {
                 setupCanvas();
                 drawBackground();
             });
         }
 
-        // ========== ОБНОВЛЕНИЕ ПРЕДПРОСМОТРА ==========
         function updatePreview() {
             if (!elements.mainPreview || !elements.subPreview) return;
             
             elements.mainPreview.textContent = state.mainText;
             elements.subPreview.textContent = state.subText;
+            
+            elements.mainPreview.style.animation = '';
+            elements.subPreview.style.animation = '';
+            
+            elements.mainPreview.style.color = state.color;
+            elements.subPreview.style.color = state.color;
+            
+            applyGlowAnimation();
             
             if (state.showSubText && state.subText.trim()) {
                 elements.subPreview.classList.remove('hidden');
@@ -992,25 +1009,45 @@
                 elements.subPreview.classList.add('hidden');
             }
             
-            applyTextStyles();
             updateStickers();
             updateFileSize();
         }
 
-        function applyTextStyles() {
-            if (!elements.mainPreview) return;
+        function applyGlowAnimation() {
+            elements.mainPreview.style.animation = '';
+            elements.subPreview.style.animation = '';
             
-            const textShadow = getTextShadow();
-            
-            elements.mainPreview.style.color = state.color;
-            elements.mainPreview.style.textShadow = textShadow;
-            
-            if (state.showSubText && state.subText.trim() && elements.subPreview) {
-                const subGlow = Math.max(10, state.glowStrength * 0.6);
-                elements.subPreview.style.color = state.color;
-                elements.subPreview.style.textShadow = `0 0 ${subGlow}px ${state.color}`;
-                elements.subPreview.style.opacity = '0.9';
+            switch(state.glowType) {
+                case 'pulse':
+                    elements.mainPreview.style.animation = 'pulseGlow 2s infinite ease-in-out';
+                    elements.subPreview.style.animation = 'pulseGlow 2s infinite ease-in-out 0.5s';
+                    break;
+                    
+                case 'double':
+                    elements.mainPreview.style.animation = 'doubleGlow 1.5s infinite ease-in-out';
+                    elements.subPreview.style.animation = 'doubleGlow 1.5s infinite ease-in-out 0.3s';
+                    break;
+                    
+                case 'neon-rainbow':
+                    elements.mainPreview.style.animation = 'neonRainbow 3s infinite linear';
+                    elements.subPreview.style.animation = 'neonRainbow 3s infinite linear 1.5s';
+                    break;
+                    
+                case 'glitch':
+                    elements.mainPreview.style.animation = 'glitchEffect 0.8s infinite';
+                    elements.subPreview.style.animation = 'glitchEffect 0.8s infinite 0.2s';
+                    break;
+                    
+                case 'simple':
+                default:
+                    const glow = state.glowStrength;
+                    // ИСПРАВЛЕНО: Сила свечения теперь работает
+                    elements.mainPreview.style.textShadow = `0 0 ${glow}px ${state.color}, 0 0 ${glow * 1.5}px ${state.color}`;
+                    elements.subPreview.style.textShadow = `0 0 ${glow * 0.7}px ${state.color}, 0 0 ${glow}px ${state.color}`;
+                    break;
             }
+            
+            elements.subPreview.style.opacity = '0.9';
             
             if (elements.sticker1 && elements.sticker2) {
                 elements.sticker1.style.color = state.color;
@@ -1018,21 +1055,6 @@
             }
         }
 
-        function getTextShadow() {
-            const g = state.glowStrength;
-            const c = state.color;
-            
-            switch(state.glowType) {
-                case 'simple': return `0 0 ${g}px ${c}`;
-                case 'double': return `0 0 ${g}px ${c}, 0 0 ${g*2}px ${c}`;
-                case 'pulse': return `0 0 ${g}px ${c}`;
-                case 'neon-rainbow': return `0 0 ${g}px ${c}, 0 0 ${g*2}px ${getComplementaryColor(c)}`;
-                case 'glitch': return `2px 2px ${g}px ${c}, -2px -2px ${g}px ${getComplementaryColor(c)}`;
-                default: return `0 0 ${g}px ${c}`;
-            }
-        }
-
-        // ========== РИСОВАНИЕ ФОНОВ ==========
         function drawBackground() {
             if (!elements.canvas || !elements.canvas.getContext) return;
             
@@ -1043,11 +1065,10 @@
             const height = elements.canvas.height;
             const time = Date.now() * 0.001;
             
-            // Черный фон
-            ctx.fillStyle = '#0a0a14';
+            // Используем выбранный цвет фона
+            ctx.fillStyle = state.backgroundColor;
             ctx.fillRect(0, 0, width, height);
             
-            // Рисуем выбранный фон
             switch(state.bgAnimation) {
                 case 'grid':
                     drawGrid(ctx, width, height, time);
@@ -1077,7 +1098,6 @@
             ctx.strokeStyle = 'rgba(0, 243, 255, 0.15)';
             ctx.lineWidth = 1;
             
-            // Движущаяся сетка
             const offsetX = (time * 20) % 60;
             const offsetY = (time * 20) % 60;
             
@@ -1097,7 +1117,6 @@
         }
 
         function drawParticles(ctx, width, height, time) {
-            // Создаем частицы если их нет
             if (state.particles.length === 0) {
                 for (let i = 0; i < 50; i++) {
                     state.particles.push({
@@ -1112,12 +1131,10 @@
                 }
             }
             
-            // Обновляем и рисуем частицы
             for (const p of state.particles) {
                 p.x += p.speedX;
                 p.y += p.speedY;
                 
-                // Отскок от границ
                 if (p.x < 0 || p.x > width) p.speedX *= -1;
                 if (p.y < 0 || p.y > height) p.speedY *= -1;
                 
@@ -1135,7 +1152,6 @@
             ctx.lineWidth = 2;
             ctx.globalAlpha = 0.3;
             
-            // Анимированные волны
             for (let i = 0; i < 5; i++) {
                 const amplitude = 20 + i * 10;
                 const frequency = 0.02 + i * 0.008;
@@ -1156,7 +1172,6 @@
             ctx.strokeStyle = 'rgba(0, 255, 157, 0.2)';
             ctx.lineWidth = 2;
             
-            // Анимированные круги
             for (let i = 0; i < 8; i++) {
                 const x = width * (0.2 + Math.sin(time + i) * 0.1 + 0.3);
                 const y = height * (0.2 + Math.cos(time + i) * 0.1 + 0.3);
@@ -1169,13 +1184,11 @@
         }
 
         function drawScan(ctx, width, height, time) {
-            // Сканирующие линии
             ctx.fillStyle = 'rgba(0, 243, 255, 0.05)';
             for (let y = 0; y < height; y += 4) {
                 ctx.fillRect(0, y, width, 2);
             }
             
-            // Сканирующий луч
             const scanY = (time * 100) % height;
             ctx.fillStyle = 'rgba(0, 243, 255, 0.3)';
             ctx.fillRect(0, scanY, width, 3);
@@ -1213,7 +1226,6 @@
             ctx.font = '16px JetBrains Mono';
             ctx.globalAlpha = 0.3;
             
-            // Бинарный дождь
             for (let i = 0; i < 20; i++) {
                 const x = 50 + i * 70;
                 const y = (time * 50 + i * 50) % (height + 100) - 50;
@@ -1222,7 +1234,6 @@
             ctx.globalAlpha = 1;
         }
 
-        // ========== СТИКЕРЫ ==========
         function updateStickers() {
             const emojis = getStickerEmojis();
             if (elements.sticker1 && elements.sticker2) {
@@ -1250,13 +1261,13 @@
             }
         }
 
-        // ========== ШАБЛОНЫ ==========
         function applyTemplate(template) {
             const templates = {
                 gamer: {
                     mainText: 'CYBERSTREAMER LIVE',
                     subText: 'Играет в Cyberpunk 2077',
                     color: '#00f3ff',
+                    backgroundColor: '#1a1a2e',
                     glowType: 'pulse',
                     stickerType: 'gaming',
                     bgAnimation: 'grid'
@@ -1265,6 +1276,7 @@
                     mainText: 'SYNTHWAVE RADIO',
                     subText: 'Прямой эфир • 24/7',
                     color: '#ff00ff',
+                    backgroundColor: '#000000',
                     glowType: 'neon-rainbow',
                     stickerType: 'music',
                     bgAnimation: 'particles'
@@ -1273,6 +1285,7 @@
                     mainText: 'DIGITAL ART ZONE',
                     subText: 'Рисую в реальном времени',
                     color: '#00ff9d',
+                    backgroundColor: '#0f3460',
                     glowType: 'double',
                     stickerType: 'cyber',
                     bgAnimation: 'waves'
@@ -1281,6 +1294,7 @@
                     mainText: 'TECH TALK LIVE',
                     subText: 'Обсуждение новых технологий',
                     color: '#ff5500',
+                    backgroundColor: '#111827',
                     glowType: 'glitch',
                     stickerType: 'tech',
                     bgAnimation: 'circuits'
@@ -1289,6 +1303,7 @@
                     mainText: 'CYBERPUNK PODCAST',
                     subText: 'Новый выпуск каждую неделю',
                     color: '#9d00ff',
+                    backgroundColor: '#0a0a14',
                     glowType: 'simple',
                     stickerType: 'none',
                     bgAnimation: 'none'
@@ -1297,6 +1312,7 @@
                     mainText: 'CODE ACADEMY',
                     subText: 'Учим программированию',
                     color: '#00ffea',
+                    backgroundColor: '#16213e',
                     glowType: 'pulse',
                     stickerType: 'tech',
                     bgAnimation: 'binary'
@@ -1308,7 +1324,6 @@
             
             Object.assign(state, t);
             
-            // Обновляем UI
             updateUIFromState();
             drawBackground();
             updatePreview();
@@ -1329,7 +1344,6 @@
             if (elements.qrUrl) elements.qrUrl.value = state.qrUrl;
             if (elements.hideSubText) elements.hideSubText.checked = state.showSubText;
             
-            // Цвет
             if (elements.colorOptions) {
                 elements.colorOptions.forEach(opt => {
                     opt.classList.remove('active');
@@ -1339,7 +1353,15 @@
                 });
             }
             
-            // Шаблон
+            if (elements.bgColorOptions) {
+                elements.bgColorOptions.forEach(opt => {
+                    opt.classList.remove('active');
+                    if (opt.dataset.bgColor === state.backgroundColor) {
+                        opt.classList.add('active');
+                    }
+                });
+            }
+            
             if (elements.templateCards) {
                 elements.templateCards.forEach(card => {
                     card.classList.remove('active');
@@ -1350,7 +1372,6 @@
             }
         }
 
-        // ========== СКАЧИВАНИЕ PNG ==========
         function downloadImage(withEffects) {
             showNotification('Создаем изображение...', 'info');
             
@@ -1362,11 +1383,9 @@
                 
                 if (!ctx) throw new Error('Не удалось получить контекст canvas');
                 
-                // Черный фон
-                ctx.fillStyle = '#0a0a14';
+                ctx.fillStyle = state.backgroundColor;
                 ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
                 
-                // Рисуем выбранный фон
                 if (withEffects && state.bgAnimation !== 'none') {
                     const time = Date.now() * 0.001;
                     
@@ -1394,7 +1413,6 @@
                             break;
                     }
                 } else if (!withEffects) {
-                    // Простая сетка для базовой версии
                     ctx.strokeStyle = 'rgba(0, 243, 255, 0.1)';
                     ctx.lineWidth = 1;
                     
@@ -1413,13 +1431,26 @@
                     }
                 }
                 
-                // Текст
                 ctx.font = 'bold 100px Orbitron';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillStyle = state.color;
+                
+                // ИСПРАВЛЕНО: Сила свечения применяется правильно
+                const glow = state.glowStrength;
                 ctx.shadowColor = state.color;
-                ctx.shadowBlur = state.glowStrength;
+                ctx.shadowBlur = glow;
+                
+                if (state.glowType === 'neon-rainbow') {
+                    const gradient = ctx.createLinearGradient(0, 0, tempCanvas.width, 0);
+                    gradient.addColorStop(0, '#ff00ff');
+                    gradient.addColorStop(0.25, '#00f3ff');
+                    gradient.addColorStop(0.5, '#00ff9d');
+                    gradient.addColorStop(0.75, '#ff5500');
+                    gradient.addColorStop(1, '#ff00ff');
+                    ctx.fillStyle = gradient;
+                }
+                
                 ctx.fillText(state.mainText, tempCanvas.width / 2, tempCanvas.height / 2 - 40);
                 ctx.shadowBlur = 0;
                 
@@ -1429,7 +1460,6 @@
                     ctx.fillText(state.subText, tempCanvas.width / 2, tempCanvas.height / 2 + 60);
                 }
                 
-                // Стикеры если есть
                 if (withEffects && state.stickerType !== 'none') {
                     const emojis = getStickerEmojis();
                     ctx.font = '80px Arial';
@@ -1439,7 +1469,6 @@
                     ctx.fillText(emojis[1], tempCanvas.width * 0.85, tempCanvas.height * 0.7);
                 }
                 
-                // QR код если есть
                 if (withEffects && state.qrUrl) {
                     ctx.fillStyle = 'white';
                     ctx.fillRect(tempCanvas.width - 140, tempCanvas.height - 140, 120, 120);
@@ -1451,7 +1480,6 @@
                     ctx.fillText('QR', tempCanvas.width - 80, tempCanvas.height - 70);
                 }
                 
-                // Водяной знак
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
                 ctx.font = 'bold 24px Orbitron';
                 ctx.textAlign = 'left';
@@ -1475,35 +1503,32 @@
             }
         }
 
-        // ========== СОЗДАНИЕ НАСТОЯЩЕГО GIF ==========
         async function createRealAnimatedGif() {
-            if (typeof GIF === 'undefined') {
-                showNotification('Ошибка: библиотека GIF не загружена', 'error');
-                return;
-            }
-            
             showNotification('Начинаем создание GIF...', 'info');
             elements.progressContainer.style.display = 'flex';
             elements.progressFill.style.width = '0%';
             
             try {
+                if (typeof GIF === 'undefined') {
+                    throw new Error('Библиотека GIF не загружена');
+                }
+                
                 const gif = new GIF({
-                    workers: 2,
+                    workers: 4,
                     quality: 10,
                     width: 800,
-                    height: 300
+                    height: 300,
+                    workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'
                 });
                 
-                const frames = 12; // 12 кадров для GIF
-                let framesAdded = 0;
+                const frames = 15;
+                const delay = 100;
                 
                 for (let i = 0; i < frames; i++) {
-                    // Обновляем прогресс
                     const progress = Math.round((i / frames) * 100);
                     elements.progressFill.style.width = `${progress}%`;
                     elements.progressText.textContent = `Создаем GIF... ${progress}%`;
                     
-                    // Создаем канвас для кадра
                     const canvas = document.createElement('canvas');
                     canvas.width = 800;
                     canvas.height = 300;
@@ -1511,60 +1536,70 @@
                     
                     if (!ctx) continue;
                     
-                    // Черный фон
-                    ctx.fillStyle = '#0a0a14';
+                    // Фон
+                    ctx.fillStyle = state.backgroundColor;
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
                     
-                    // Время для анимации
+                    // Анимированный фон для GIF
                     const time = i * 0.2;
-                    
-                    // Рисуем выбранный анимированный фон
-                    switch(state.bgAnimation) {
-                        case 'grid':
-                            drawGrid(ctx, canvas.width, canvas.height, time);
-                            break;
-                        case 'particles':
-                            drawParticles(ctx, canvas.width, canvas.height, time);
-                            break;
-                        case 'waves':
-                            drawWaves(ctx, canvas.width, canvas.height, time);
-                            break;
-                        case 'circuits':
-                            drawCircuits(ctx, canvas.width, canvas.height, time);
-                            break;
-                        case 'scan':
-                            drawScan(ctx, canvas.width, canvas.height, time);
-                            break;
-                        case 'hexagon':
-                            drawHexagon(ctx, canvas.width, canvas.height, time);
-                            break;
-                        case 'binary':
-                            drawBinary(ctx, canvas.width, canvas.height, time);
-                            break;
-                        case 'none':
-                            // Нет фона
-                            break;
+                    if (state.bgAnimation !== 'none') {
+                        switch(state.bgAnimation) {
+                            case 'grid':
+                                drawGrid(ctx, canvas.width, canvas.height, time);
+                                break;
+                            case 'particles':
+                                // Анимированные частицы для GIF
+                                for (let j = 0; j < 30; j++) {
+                                    const x = (canvas.width * j/30 + time * 50) % canvas.width;
+                                    const y = canvas.height * 0.5 + Math.sin(time * 2 + j) * 50;
+                                    const size = 2 + Math.sin(time + j) * 1;
+                                    
+                                    ctx.fillStyle = state.color;
+                                    ctx.globalAlpha = 0.3 + Math.sin(time + j) * 0.3;
+                                    ctx.beginPath();
+                                    ctx.arc(x, y, size, 0, Math.PI * 2);
+                                    ctx.fill();
+                                }
+                                ctx.globalAlpha = 1;
+                                break;
+                            case 'waves':
+                                ctx.strokeStyle = state.color;
+                                ctx.lineWidth = 2;
+                                ctx.globalAlpha = 0.3;
+                                ctx.beginPath();
+                                for (let x = 0; x < canvas.width; x++) {
+                                    const y = canvas.height * 0.5 + Math.sin(x * 0.02 + time * 2) * 40;
+                                    if (x === 0) ctx.moveTo(x, y);
+                                    else ctx.lineTo(x, y);
+                                }
+                                ctx.stroke();
+                                ctx.globalAlpha = 1;
+                                break;
+                        }
                     }
                     
-                    // Пульсирующий текст для анимации
-                    const pulse = 0.8 + Math.sin(i * 0.5) * 0.2;
-                    const glow = state.glowStrength * pulse;
+                    // Текст с анимированным свечением
+                    let glowSize = state.glowStrength;
+                    if (state.glowType === 'pulse') {
+                        const pulse = 0.7 + 0.3 * Math.sin(time * 2);
+                        glowSize = state.glowStrength * pulse;
+                    }
                     
                     ctx.font = 'bold 60px Orbitron';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillStyle = state.color;
                     ctx.shadowColor = state.color;
-                    ctx.shadowBlur = glow;
+                    ctx.shadowBlur = glowSize;
                     
-                    // Для радужного эффекта
                     if (state.glowType === 'neon-rainbow') {
-                        const hue = (i * 30) % 360;
+                        const hue = (i * 24) % 360;
                         ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
                         ctx.shadowColor = `hsl(${hue}, 100%, 50%)`;
                     }
                     
-                    ctx.fillText(state.mainText, canvas.width / 2, canvas.height / 2 - 20);
+                    ctx.fillText(state.mainText, canvas.width / 2, canvas.height / 2 - 25);
+                    ctx.shadowBlur = 0;
                     
                     if (state.showSubText && state.subText) {
                         ctx.font = 'bold 30px Orbitron';
@@ -1572,37 +1607,37 @@
                         ctx.fillText(state.subText, canvas.width / 2, canvas.height / 2 + 40);
                     }
                     
-                    ctx.shadowBlur = 0;
-                    
-                    // Стикеры
+                    // Стикеры с легкой анимацией
                     if (state.stickerType !== 'none') {
                         const emojis = getStickerEmojis();
                         ctx.font = '60px Arial';
                         ctx.fillStyle = state.color;
-                        ctx.fillText(emojis[0], canvas.width * 0.15, canvas.height * 0.3);
+                        const sticker1X = canvas.width * 0.15 + Math.sin(time) * 5;
+                        const sticker1Y = canvas.height * 0.3 + Math.cos(time) * 5;
+                        ctx.fillText(emojis[0], sticker1X, sticker1Y);
+                        
                         ctx.fillStyle = getComplementaryColor(state.color);
-                        ctx.fillText(emojis[1], canvas.width * 0.85, canvas.height * 0.7);
+                        const sticker2X = canvas.width * 0.85 + Math.cos(time * 1.5) * 5;
+                        const sticker2Y = canvas.height * 0.7 + Math.sin(time * 1.5) * 5;
+                        ctx.fillText(emojis[1], sticker2X, sticker2Y);
                     }
                     
-                    // Водяной знак
                     ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
                     ctx.font = 'bold 16px Orbitron';
                     ctx.textAlign = 'left';
                     ctx.fillText('NUAR Studio', 20, canvas.height - 20);
                     
-                    // Добавляем кадр в GIF
-                    gif.addFrame(ctx, {delay: 100});
-                    framesAdded++;
+                    gif.addFrame(ctx, {delay: delay});
                     
                     // Даем браузеру отдохнуть
                     await new Promise(resolve => setTimeout(resolve, 50));
                 }
                 
-                // Рендерим GIF
                 gif.on('finished', function(blob) {
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
-                    link.download = `nuar-animation-${Date.now()}.gif`;
+                    const timestamp = new Date().toISOString().slice(0,19).replace(/:/g, '-');
+                    link.download = `nuar-animation-${timestamp}.gif`;
                     link.href = url;
                     document.body.appendChild(link);
                     link.click();
@@ -1614,7 +1649,7 @@
                     
                     setTimeout(() => {
                         elements.progressContainer.style.display = 'none';
-                        showNotification('Анимированный GIF успешно создан!', 'success');
+                        showNotification('Анимированный GIF успешно создан и скачан!', 'success');
                     }, 1000);
                 });
                 
@@ -1623,11 +1658,10 @@
             } catch (error) {
                 console.error('Ошибка при создании GIF:', error);
                 elements.progressContainer.style.display = 'none';
-                showNotification('Ошибка при создании GIF', 'error');
+                showNotification('Не удалось создать GIF. Пожалуйста, попробуйте скачать PNG.', 'error');
             }
         }
 
-        // ========== ОСТАЛЬНЫЕ ФУНКЦИИ ==========
         function getComplementaryColor(hex) {
             const colorMap = {
                 '#00f3ff': '#ff00ff', '#ff00ff': '#00ff9d',
@@ -1679,7 +1713,6 @@
             }, 3000);
         }
 
-        // ========== АНИМАЦИЯ ==========
         function startAnimation() {
             if (!state.animationId) {
                 state.animationId = requestAnimationFrame(animate);
@@ -1688,9 +1721,7 @@
 
         function animate(currentTime) {
             if (!state.lastRenderTime) state.lastRenderTime = currentTime;
-            const deltaTime = currentTime - state.lastRenderTime;
             
-            // Перерисовываем фон если он анимированный
             if (state.bgAnimation !== 'none' && elements.canvas) {
                 drawBackground();
             }
@@ -1699,9 +1730,9 @@
             state.animationId = requestAnimationFrame(animate);
         }
 
-        // ========== СЛУЧАЙНЫЙ ДИЗАЙН ==========
         function randomDesign() {
             const colors = ['#00f3ff', '#ff00ff', '#00ff9d', '#ff5500', '#9d00ff', '#00ffea', '#ffcc00', '#ff3366'];
+            const bgColors = ['#0a0a14', '#000000', '#111827', '#1a1a2e', '#16213e', '#0f3460'];
             const templates = ['gamer', 'music', 'creative', 'tech', 'podcast', 'education'];
             const glowTypes = ['simple', 'double', 'pulse', 'neon-rainbow', 'glitch'];
             const bgAnimations = ['none', 'grid', 'particles', 'waves', 'circuits', 'scan', 'hexagon', 'binary'];
@@ -1725,6 +1756,7 @@
             ];
             
             state.color = colors[Math.floor(Math.random() * colors.length)];
+            state.backgroundColor = bgColors[Math.floor(Math.random() * bgColors.length)];
             state.glowType = glowTypes[Math.floor(Math.random() * glowTypes.length)];
             state.glowStrength = 15 + Math.floor(Math.random() * 35);
             state.mainText = mainTexts[Math.floor(Math.random() * mainTexts.length)];
@@ -1741,11 +1773,11 @@
             showNotification('Случайный дизайн создан!', 'success');
         }
 
-        // ========== СБРОС ДИЗАЙНА ==========
         function resetDesign() {
             state.mainText = 'CYBERSTREAMER LIVE';
             state.subText = 'Играет в Cyberpunk 2077';
             state.color = '#00f3ff';
+            state.backgroundColor = '#1a1a2e';
             state.glowType = 'pulse';
             state.glowStrength = 25;
             state.bgAnimation = 'grid';
@@ -1761,12 +1793,12 @@
             showNotification('Дизайн сброшен до начальных настроек', 'info');
         }
 
-        // ========== ЭКСПОРТ НАСТРОЕК ==========
         function exportSettings() {
             const settings = {
                 mainText: state.mainText,
                 subText: state.subText,
                 color: state.color,
+                backgroundColor: state.backgroundColor,
                 glowType: state.glowType,
                 glowStrength: state.glowStrength,
                 bgAnimation: state.bgAnimation,
@@ -1790,14 +1822,13 @@
             showNotification('Настройки экспортированы в JSON файл', 'success');
         }
 
-        // ========== КОПИРОВАНИЕ CSS ==========
         function copyCss() {
             const css = `/* CSS для шапки от NUAR Studio */
 .header-container {
     position: relative;
     width: 100%;
     height: 500px;
-    background: #0a0a14;
+    background: ${state.backgroundColor};
     overflow: hidden;
     font-family: 'Orbitron', sans-serif;
 }
@@ -1815,14 +1846,18 @@
     font-size: 5rem;
     font-weight: bold;
     color: ${state.color};
-    text-shadow: ${getTextShadow()};
+    text-shadow: 0 0 ${state.glowStrength}px ${state.color}, 0 0 ${state.glowStrength * 1.5}px ${state.color};
     margin-bottom: 1rem;
+    ${state.glowType === 'pulse' ? 'animation: pulseGlow 2s infinite ease-in-out;' : ''}
+    ${state.glowType === 'neon-rainbow' ? 'animation: neonRainbow 3s infinite linear;' : ''}
+    ${state.glowType === 'glitch' ? 'animation: glitchEffect 0.8s infinite;' : ''}
 }
 
 .sub-text {
     font-size: 2rem;
     color: ${state.color};
     opacity: 0.9;
+    text-shadow: 0 0 ${state.glowStrength * 0.7}px ${state.color};
 }`;
 
             navigator.clipboard.writeText(css).then(() => {
@@ -1838,7 +1873,6 @@
             });
         }
 
-        // ========== ПОДЕЛИТЬСЯ ДИЗАЙНОМ ==========
         function shareDesign() {
             const designData = {
                 title: `Мой дизайн: ${state.mainText}`,
@@ -1860,6 +1894,7 @@
                 mainText: state.mainText,
                 subText: state.subText,
                 color: state.color,
+                backgroundColor: state.backgroundColor,
                 glowType: state.glowType,
                 glowStrength: state.glowStrength,
                 template: state.template
@@ -1873,7 +1908,6 @@
             });
         }
 
-        // ========== ЗАГРУЗКА ==========
         window.addEventListener('load', init);
     </script>
 </body>
