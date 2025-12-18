@@ -6,7 +6,7 @@
     <title>NUAR Studio | Киберпанк-конструктор для стримеров</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <!-- ИКОНКА ВКЛАДКИ (ВОЗВРАЩЕНА) -->
+    <!-- ИКОНКА ВКЛАДКИ -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><defs><linearGradient id=%22brainGrad%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22><stop offset=%220%25%22 style=%22stop-color:%2300f3ff;stop-opacity:1%22/><stop offset=%22100%25%22 style=%22stop-color:%23ff00ff;stop-opacity:1%22/></linearGradient></defs><path d=%22M50,20 Q70,25 75,40 Q80,55 70,70 Q60,85 50,80 Q40,85 30,70 Q20,55 25,40 Q30,25 50,20Z%22 fill=%22url(%23brainGrad)%22 stroke=%22%2300f3ff%22 stroke-width=%222%22/><circle cx=%2250%22 cy=%2240%22 r=%225%22 fill=%22white%22/><path d=%22M40,55 Q50,60 60,55%22 stroke=%22%23ff00ff%22 stroke-width=%222%22 fill=%22none%22/></svg>">
     <!-- Библиотека для GIF -->
     <script src="https://unpkg.com/gif.js@0.2.0/dist/gif.js"></script>
@@ -19,6 +19,7 @@
             --neon-orange: #ff5500;
             --dark-bg: #0a0a14;
             --panel-bg: rgba(20, 25, 40, 0.97);
+            --glow-strength: 25;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -351,6 +352,7 @@
             font-size: 3.5rem;
             font-weight: bold;
             margin-bottom: 0.5rem;
+            transition: text-shadow 0.3s;
         }
 
         .sub-preview {
@@ -363,42 +365,67 @@
             display: none;
         }
 
+        /* ОБНОВЛЕННЫЕ АНИМАЦИИ С CSS ПЕРЕМЕННЫМИ */
         @keyframes pulseGlow {
             0%, 100% { 
-                text-shadow: 0 0 10px currentColor, 
-                           0 0 20px currentColor,
-                           0 0 30px currentColor; 
+                text-shadow: 0 0 calc(var(--glow-strength) * 1px) currentColor, 
+                           0 0 calc(var(--glow-strength) * 1.5px) currentColor,
+                           0 0 calc(var(--glow-strength) * 2px) currentColor; 
             }
             50% { 
-                text-shadow: 0 0 20px currentColor, 
-                           0 0 40px currentColor,
-                           0 0 60px currentColor; 
+                text-shadow: 0 0 calc(var(--glow-strength) * 1.5px) currentColor, 
+                           0 0 calc(var(--glow-strength) * 2px) currentColor,
+                           0 0 calc(var(--glow-strength) * 2.5px) currentColor; 
             }
         }
 
         @keyframes doubleGlow {
             0%, 100% { 
-                text-shadow: 0 0 10px currentColor, 
-                           0 0 20px currentColor; 
+                text-shadow: 0 0 calc(var(--glow-strength) * 1px) currentColor, 
+                           0 0 calc(var(--glow-strength) * 1.5px) currentColor; 
             }
             50% { 
-                text-shadow: 0 0 20px currentColor, 
-                           0 0 40px currentColor; 
+                text-shadow: 0 0 calc(var(--glow-strength) * 1.5px) currentColor, 
+                           0 0 calc(var(--glow-strength) * 2px) currentColor; 
             }
         }
 
         @keyframes neonRainbow {
-            0% { text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; }
-            25% { text-shadow: 0 0 10px #00f3ff, 0 0 20px #00f3ff; }
-            50% { text-shadow: 0 0 10px #00ff9d, 0 0 20px #00ff9d; }
-            75% { text-shadow: 0 0 10px #ff5500, 0 0 20px #ff5500; }
-            100% { text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; }
+            0% { 
+                text-shadow: 0 0 calc(var(--glow-strength) * 0.5px) #ff00ff, 
+                           0 0 calc(var(--glow-strength) * 1px) #ff00ff; 
+            }
+            25% { 
+                text-shadow: 0 0 calc(var(--glow-strength) * 0.5px) #00f3ff, 
+                           0 0 calc(var(--glow-strength) * 1px) #00f3ff; 
+            }
+            50% { 
+                text-shadow: 0 0 calc(var(--glow-strength) * 0.5px) #00ff9d, 
+                           0 0 calc(var(--glow-strength) * 1px) #00ff9d; 
+            }
+            75% { 
+                text-shadow: 0 0 calc(var(--glow-strength) * 0.5px) #ff5500, 
+                           0 0 calc(var(--glow-strength) * 1px) #ff5500; 
+            }
+            100% { 
+                text-shadow: 0 0 calc(var(--glow-strength) * 0.5px) #ff00ff, 
+                           0 0 calc(var(--glow-strength) * 1px) #ff00ff; 
+            }
         }
 
         @keyframes glitchEffect {
-            0% { text-shadow: 2px 2px 10px currentColor, -2px -2px 10px currentColor; }
-            50% { text-shadow: -2px 2px 10px currentColor, 2px -2px 10px currentColor; }
-            100% { text-shadow: 2px 2px 10px currentColor, -2px -2px 10px currentColor; }
+            0% { 
+                text-shadow: 2px 2px calc(var(--glow-strength) * 0.5px) currentColor, 
+                           -2px -2px calc(var(--glow-strength) * 0.5px) currentColor; 
+            }
+            50% { 
+                text-shadow: -2px 2px calc(var(--glow-strength) * 0.5px) currentColor, 
+                           2px -2px calc(var(--glow-strength) * 0.5px) currentColor; 
+            }
+            100% { 
+                text-shadow: 2px 2px calc(var(--glow-strength) * 0.5px) currentColor, 
+                           -2px -2px calc(var(--glow-strength) * 0.5px) currentColor; 
+            }
         }
 
         .action-buttons {
@@ -648,7 +675,6 @@
                         <div class="color-option" style="background:#cc33ff;" data-color="#cc33ff"></div>
                     </div>
                 </div>
-                <!-- НОВАЯ НАСТРОЙКА: Цвет фона -->
                 <div class="control-item">
                     <label>Цвет фона:</label>
                     <div class="color-grid">
@@ -948,7 +974,9 @@
             elements.glowStrength.addEventListener('input', (e) => {
                 state.glowStrength = parseInt(e.target.value);
                 elements.glowValue.textContent = state.glowStrength;
-                updatePreview(); // ИСПРАВЛЕНО: Теперь обновляется при изменении
+                // Обновляем CSS переменную
+                document.documentElement.style.setProperty('--glow-strength', state.glowStrength);
+                updatePreview();
             });
             
             elements.bgAnimation.addEventListener('change', (e) => {
@@ -995,12 +1023,13 @@
             elements.mainPreview.textContent = state.mainText;
             elements.subPreview.textContent = state.subText;
             
-            elements.mainPreview.style.animation = '';
-            elements.subPreview.style.animation = '';
-            
             elements.mainPreview.style.color = state.color;
             elements.subPreview.style.color = state.color;
             
+            // Обновляем CSS переменную для силы свечения
+            document.documentElement.style.setProperty('--glow-strength', state.glowStrength);
+            
+            // Применяем анимации
             applyGlowAnimation();
             
             if (state.showSubText && state.subText.trim()) {
@@ -1014,9 +1043,19 @@
         }
 
         function applyGlowAnimation() {
+            // Сначала убираем все старые анимации
             elements.mainPreview.style.animation = '';
             elements.subPreview.style.animation = '';
             
+            // Обновляем базовое свечение для типа "simple"
+            if (state.glowType === 'simple') {
+                const glow = state.glowStrength;
+                elements.mainPreview.style.textShadow = `0 0 ${glow}px ${state.color}`;
+                elements.subPreview.style.textShadow = `0 0 ${glow * 0.7}px ${state.color}`;
+                return; // Не применяем анимацию для простого свечения
+            }
+            
+            // Применяем анимацию в зависимости от типа свечения
             switch(state.glowType) {
                 case 'pulse':
                     elements.mainPreview.style.animation = 'pulseGlow 2s infinite ease-in-out';
@@ -1036,14 +1075,6 @@
                 case 'glitch':
                     elements.mainPreview.style.animation = 'glitchEffect 0.8s infinite';
                     elements.subPreview.style.animation = 'glitchEffect 0.8s infinite 0.2s';
-                    break;
-                    
-                case 'simple':
-                default:
-                    const glow = state.glowStrength;
-                    // ИСПРАВЛЕНО: Сила свечения теперь работает
-                    elements.mainPreview.style.textShadow = `0 0 ${glow}px ${state.color}, 0 0 ${glow * 1.5}px ${state.color}`;
-                    elements.subPreview.style.textShadow = `0 0 ${glow * 0.7}px ${state.color}, 0 0 ${glow}px ${state.color}`;
                     break;
             }
             
@@ -1065,7 +1096,6 @@
             const height = elements.canvas.height;
             const time = Date.now() * 0.001;
             
-            // Используем выбранный цвет фона
             ctx.fillStyle = state.backgroundColor;
             ctx.fillRect(0, 0, width, height);
             
@@ -1269,6 +1299,7 @@
                     color: '#00f3ff',
                     backgroundColor: '#1a1a2e',
                     glowType: 'pulse',
+                    glowStrength: 25,
                     stickerType: 'gaming',
                     bgAnimation: 'grid'
                 },
@@ -1278,6 +1309,7 @@
                     color: '#ff00ff',
                     backgroundColor: '#000000',
                     glowType: 'neon-rainbow',
+                    glowStrength: 30,
                     stickerType: 'music',
                     bgAnimation: 'particles'
                 },
@@ -1287,6 +1319,7 @@
                     color: '#00ff9d',
                     backgroundColor: '#0f3460',
                     glowType: 'double',
+                    glowStrength: 20,
                     stickerType: 'cyber',
                     bgAnimation: 'waves'
                 },
@@ -1296,6 +1329,7 @@
                     color: '#ff5500',
                     backgroundColor: '#111827',
                     glowType: 'glitch',
+                    glowStrength: 35,
                     stickerType: 'tech',
                     bgAnimation: 'circuits'
                 },
@@ -1305,6 +1339,7 @@
                     color: '#9d00ff',
                     backgroundColor: '#0a0a14',
                     glowType: 'simple',
+                    glowStrength: 15,
                     stickerType: 'none',
                     bgAnimation: 'none'
                 },
@@ -1314,6 +1349,7 @@
                     color: '#00ffea',
                     backgroundColor: '#16213e',
                     glowType: 'pulse',
+                    glowStrength: 25,
                     stickerType: 'tech',
                     bgAnimation: 'binary'
                 }
@@ -1436,7 +1472,6 @@
                 ctx.textBaseline = 'middle';
                 ctx.fillStyle = state.color;
                 
-                // ИСПРАВЛЕНО: Сила свечения применяется правильно
                 const glow = state.glowStrength;
                 ctx.shadowColor = state.color;
                 ctx.shadowBlur = glow;
@@ -1509,19 +1544,27 @@
             elements.progressFill.style.width = '0%';
             
             try {
+                // Проверяем наличие библиотеки
                 if (typeof GIF === 'undefined') {
-                    throw new Error('Библиотека GIF не загружена');
+                    showNotification('Загружаем GIF библиотеку...', 'info');
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.min.js';
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
                 }
                 
                 const gif = new GIF({
-                    workers: 4,
+                    workers: 2,
                     quality: 10,
                     width: 800,
                     height: 300,
                     workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'
                 });
                 
-                const frames = 15;
+                const frames = 12; // Меньше кадров для скорости
                 const delay = 100;
                 
                 for (let i = 0; i < frames; i++) {
@@ -1540,22 +1583,24 @@
                     ctx.fillStyle = state.backgroundColor;
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
                     
-                    // Анимированный фон для GIF
-                    const time = i * 0.2;
+                    // Время для анимации
+                    const time = i * 0.3;
+                    
+                    // Анимированный фон
                     if (state.bgAnimation !== 'none') {
                         switch(state.bgAnimation) {
                             case 'grid':
                                 drawGrid(ctx, canvas.width, canvas.height, time);
                                 break;
                             case 'particles':
-                                // Анимированные частицы для GIF
-                                for (let j = 0; j < 30; j++) {
-                                    const x = (canvas.width * j/30 + time * 50) % canvas.width;
-                                    const y = canvas.height * 0.5 + Math.sin(time * 2 + j) * 50;
+                                // Простые частицы для GIF
+                                for (let j = 0; j < 20; j++) {
+                                    const x = (canvas.width * j/20 + time * 30) % canvas.width;
+                                    const y = canvas.height * 0.5 + Math.sin(time * 1.5 + j) * 30;
                                     const size = 2 + Math.sin(time + j) * 1;
                                     
                                     ctx.fillStyle = state.color;
-                                    ctx.globalAlpha = 0.3 + Math.sin(time + j) * 0.3;
+                                    ctx.globalAlpha = 0.3 + Math.sin(time + j) * 0.2;
                                     ctx.beginPath();
                                     ctx.arc(x, y, size, 0, Math.PI * 2);
                                     ctx.fill();
@@ -1568,7 +1613,7 @@
                                 ctx.globalAlpha = 0.3;
                                 ctx.beginPath();
                                 for (let x = 0; x < canvas.width; x++) {
-                                    const y = canvas.height * 0.5 + Math.sin(x * 0.02 + time * 2) * 40;
+                                    const y = canvas.height * 0.5 + Math.sin(x * 0.02 + time * 2) * 30;
                                     if (x === 0) ctx.moveTo(x, y);
                                     else ctx.lineTo(x, y);
                                 }
@@ -1592,33 +1637,50 @@
                     ctx.shadowColor = state.color;
                     ctx.shadowBlur = glowSize;
                     
+                    // Эффекты
                     if (state.glowType === 'neon-rainbow') {
-                        const hue = (i * 24) % 360;
+                        const hue = (i * 30) % 360;
                         ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
                         ctx.shadowColor = `hsl(${hue}, 100%, 50%)`;
+                    }
+                    
+                    if (state.glowType === 'glitch') {
+                        const offsetX = (i % 3 === 0) ? 2 : 0;
+                        const offsetY = (i % 4 === 0) ? -1 : 0;
+                        ctx.save();
+                        ctx.translate(offsetX, offsetY);
                     }
                     
                     ctx.fillText(state.mainText, canvas.width / 2, canvas.height / 2 - 25);
                     ctx.shadowBlur = 0;
                     
+                    if (state.glowType === 'glitch') {
+                        ctx.restore();
+                    }
+                    
                     if (state.showSubText && state.subText) {
                         ctx.font = 'bold 30px Orbitron';
                         ctx.fillStyle = state.color;
+                        if (state.glowType === 'neon-rainbow') {
+                            const hue = ((i * 30) + 180) % 360;
+                            ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+                        }
                         ctx.fillText(state.subText, canvas.width / 2, canvas.height / 2 + 40);
                     }
                     
-                    // Стикеры с легкой анимацией
+                    // Стикеры
                     if (state.stickerType !== 'none') {
                         const emojis = getStickerEmojis();
                         ctx.font = '60px Arial';
                         ctx.fillStyle = state.color;
-                        const sticker1X = canvas.width * 0.15 + Math.sin(time) * 5;
-                        const sticker1Y = canvas.height * 0.3 + Math.cos(time) * 5;
+                        
+                        const sticker1X = canvas.width * 0.15 + Math.sin(time) * 3;
+                        const sticker1Y = canvas.height * 0.3 + Math.cos(time) * 3;
                         ctx.fillText(emojis[0], sticker1X, sticker1Y);
                         
                         ctx.fillStyle = getComplementaryColor(state.color);
-                        const sticker2X = canvas.width * 0.85 + Math.cos(time * 1.5) * 5;
-                        const sticker2Y = canvas.height * 0.7 + Math.sin(time * 1.5) * 5;
+                        const sticker2X = canvas.width * 0.85 + Math.cos(time * 1.5) * 3;
+                        const sticker2Y = canvas.height * 0.7 + Math.sin(time * 1.5) * 3;
                         ctx.fillText(emojis[1], sticker2X, sticker2Y);
                     }
                     
@@ -1653,12 +1715,25 @@
                     }, 1000);
                 });
                 
+                gif.on('abort', function() {
+                    elements.progressContainer.style.display = 'none';
+                    showNotification('Создание GIF отменено', 'error');
+                });
+                
+                gif.on('progress', function(p) {
+                    if (!elements.progressFill.style.width.includes('100')) {
+                        const progress = Math.round(p * 100);
+                        elements.progressFill.style.width = `${progress}%`;
+                        elements.progressText.textContent = `Создаем GIF... ${progress}%`;
+                    }
+                });
+                
                 gif.render();
                 
             } catch (error) {
                 console.error('Ошибка при создании GIF:', error);
                 elements.progressContainer.style.display = 'none';
-                showNotification('Не удалось создать GIF. Пожалуйста, попробуйте скачать PNG.', 'error');
+                showNotification('Не удалось создать GIF. Попробуйте обновить страницу и попробовать снова.', 'error');
             }
         }
 
@@ -1775,7 +1850,7 @@
 
         function resetDesign() {
             state.mainText = 'CYBERSTREAMER LIVE';
-            state.subText = 'Играет в Cyberpunk 2077';
+            state.subText: 'Играет в Cyberpunk 2077';
             state.color = '#00f3ff';
             state.backgroundColor = '#1a1a2e';
             state.glowType = 'pulse';
