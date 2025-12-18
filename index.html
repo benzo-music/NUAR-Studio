@@ -491,44 +491,6 @@
             to { transform: translateX(100%); opacity: 0; }
         }
 
-        /* ПРОГРЕСС БАР ДЛЯ GIF */
-        .progress-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 10001;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .progress-bar {
-            width: 300px;
-            height: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid rgba(0, 243, 255, 0.3);
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00f3ff, #ff00ff);
-            width: 0%;
-            transition: width 0.3s;
-        }
-
-        .progress-text {
-            color: #00f3ff;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
-        }
-
         /* АДАПТИВНОСТЬ */
         @media (max-width: 1400px) {
             .main-container { grid-template-columns: 300px 1fr; }
@@ -551,17 +513,6 @@
 <body>
     <!-- ФОН -->
     <div class="cyber-bg"></div>
-
-    <!-- ПРОГРЕСС БАР ДЛЯ GIF -->
-    <div class="progress-container" id="progressContainer">
-        <div class="progress-text" id="progressText">Создаем GIF... 0%</div>
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-        <div class="progress-text" style="font-size: 0.9rem; color: #a0b8d0;">
-            Пожалуйста, подождите...
-        </div>
-    </div>
 
     <!-- НАВИГАЦИЯ -->
     <nav class="navbar">
@@ -656,21 +607,15 @@
                     <label>Сила свечения: <span id="glowValue">25</span>px</label>
                     <input type="range" id="glowStrength" min="5" max="60" value="25">
                 </div>
-                <!-- ДОБАВЛЕНЫ ДОПОЛНИТЕЛЬНЫЕ ФОНЫ -->
+                <!-- УПРОЩЕННЫЕ ФОНЫ -->
                 <div class="control-item">
-                    <label>Фоновая анимация:</label>
+                    <label>Фон:</label>
                     <select id="bgAnimation">
                         <option value="none">Нет</option>
-                        <option value="grid" selected>Движущаяся сетка</option>
-                        <option value="circuits">Электронные схемы</option>
-                        <option value="particles">Частицы</option>
-                        <option value="scan">Сканирующие линии</option>
-                        <option value="hexagon">Шестиугольники</option>
-                        <option value="dots">Точечная матрица</option>
-                        <option value="waves">Синусоидальные волны</option>
-                        <option value="triangles">Треугольники</option>
-                        <option value="binary">Бинарный код</option>
-                        <option value="nebula">Космическая туманность</option>
+                        <option value="grid" selected>Сетка</option>
+                        <option value="circuits">Схемы</option>
+                        <option value="dots">Точки</option>
+                        <option value="waves">Волны</option>
                     </select>
                 </div>
             </div>
@@ -727,7 +672,7 @@
                     <button class="action-btn btn-success" id="downloadFullBtn">
                         <i class="fas fa-image"></i> С ЭФФЕКТАМИ
                     </button>
-                    <!-- КНОПКА ДЛЯ НОРМАЛЬНОГО GIF -->
+                    <!-- КНОПКА ДЛЯ ПРОСТОГО GIF -->
                     <button class="action-btn btn-warning" id="downloadGifBtn">
                         <i class="fas fa-film"></i> СКАЧАТЬ GIF
                     </button>
@@ -869,10 +814,7 @@
             randomBtn: document.getElementById('randomBtn'),
             resetBtn: document.getElementById('resetBtn'),
             exportJsonBtn: document.getElementById('exportJsonBtn'),
-            fileSize: document.getElementById('fileSize'),
-            progressContainer: document.getElementById('progressContainer'),
-            progressText: document.getElementById('progressText'),
-            progressFill: document.getElementById('progressFill')
+            fileSize: document.getElementById('fileSize')
         };
 
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
@@ -880,9 +822,8 @@
             setupCanvas();
             setupEventListeners();
             updatePreview();
-            generateParticles();
             startAnimation();
-            showNotification('NUAR Studio загружен! Начни создавать свой дизайн.', 'success');
+            showNotification('NUAR Studio загружен!', 'success');
         }
 
         // ========== НАСТРОЙКА КАНВАСА ==========
@@ -891,6 +832,7 @@
             if (container && elements.canvas) {
                 elements.canvas.width = container.clientWidth;
                 elements.canvas.height = container.clientHeight;
+                renderBackground(); // Рендерим фон сразу
             }
         }
 
@@ -919,6 +861,7 @@
                     e.target.classList.add('active');
                     state.color = e.target.dataset.color;
                     updatePreview();
+                    renderBackground();
                 });
             });
 
@@ -936,7 +879,7 @@
             
             elements.bgAnimation.addEventListener('change', (e) => {
                 state.bgAnimation = e.target.value;
-                generateParticles();
+                renderBackground();
             });
             
             elements.stickerSelect.addEventListener('change', (e) => {
@@ -961,7 +904,7 @@
             // Кнопки
             elements.downloadSimpleBtn.addEventListener('click', () => downloadImage(false));
             elements.downloadFullBtn.addEventListener('click', () => downloadImage(true));
-            elements.downloadGifBtn.addEventListener('click', createRealGif);
+            elements.downloadGifBtn.addEventListener('click', createSimpleGif);
             elements.copyCssBtn.addEventListener('click', copyCss);
             elements.shareBtn.addEventListener('click', shareDesign);
             elements.randomBtn.addEventListener('click', randomDesign);
@@ -971,7 +914,7 @@
             // Адаптивность
             window.addEventListener('resize', () => {
                 setupCanvas();
-                generateParticles();
+                renderBackground();
             });
         }
 
@@ -991,18 +934,15 @@
             applyTextStyles();
             updateStickers();
             updateFileSize();
-            applyGlowEffect();
         }
 
         function applyTextStyles() {
             if (!elements.mainPreview) return;
             
             const textShadow = getTextShadow();
-            const animation = getGlowAnimation();
             
             elements.mainPreview.style.color = state.color;
             elements.mainPreview.style.textShadow = textShadow;
-            elements.mainPreview.style.animation = animation;
             
             if (state.showSubText && state.subText.trim() && elements.subPreview) {
                 const subGlow = Math.max(10, state.glowStrength * 0.6);
@@ -1031,43 +971,162 @@
             }
         }
 
-        function getGlowAnimation() {
-            switch(state.glowType) {
-                case 'pulse': return 'pulse 2s infinite';
-                case 'neon-rainbow': return 'rainbow 3s linear infinite';
-                case 'glitch': return 'glitch 0.5s infinite';
-                default: return 'none';
+        // ========== РЕНДЕРИНГ ФОНА ==========
+        function renderBackground() {
+            if (!elements.canvas || !elements.canvas.getContext) return;
+            
+            const ctx = elements.canvas.getContext('2d');
+            if (!ctx) return;
+            
+            const width = elements.canvas.width;
+            const height = elements.canvas.height;
+            
+            // Очищаем канвас
+            ctx.clearRect(0, 0, width, height);
+            
+            // Рисуем выбранный фон
+            switch(state.bgAnimation) {
+                case 'grid':
+                    drawGrid(ctx, width, height);
+                    break;
+                case 'circuits':
+                    drawCircuits(ctx, width, height);
+                    break;
+                case 'dots':
+                    drawDots(ctx, width, height);
+                    break;
+                case 'waves':
+                    drawWaves(ctx, width, height);
+                    break;
+                default:
+                    // Для 'none' просто черный фон
+                    ctx.fillStyle = '#0a0a14';
+                    ctx.fillRect(0, 0, width, height);
             }
         }
 
-        function applyGlowEffect() {
-            if (!elements.mainPreview) return;
+        function drawGrid(ctx, width, height) {
+            // Черный фон
+            ctx.fillStyle = '#0a0a14';
+            ctx.fillRect(0, 0, width, height);
             
-            elements.mainPreview.className = 'main-preview';
-            if (state.glowType === 'pulse') {
-                elements.mainPreview.classList.add('pulse-effect');
-            } else if (state.glowType === 'glitch') {
-                elements.mainPreview.classList.add('glitch-effect');
+            // Сетка
+            ctx.strokeStyle = 'rgba(0, 243, 255, 0.15)';
+            ctx.lineWidth = 1;
+            
+            // Вертикальные линии
+            for (let x = 0; x < width; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            
+            // Горизонтальные линии
+            for (let y = 0; y < height; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+            
+            // Диагонали
+            ctx.strokeStyle = 'rgba(255, 0, 255, 0.1)';
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(width, height);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(width, 0);
+            ctx.lineTo(0, height);
+            ctx.stroke();
+        }
+
+        function drawCircuits(ctx, width, height) {
+            // Черный фон
+            ctx.fillStyle = '#0a0a14';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Схемы
+            ctx.strokeStyle = 'rgba(0, 255, 157, 0.2)';
+            ctx.lineWidth = 2;
+            
+            // Круги
+            for (let i = 0; i < 5; i++) {
+                const x = width * (0.2 + Math.random() * 0.6);
+                const y = height * (0.2 + Math.random() * 0.6);
+                const radius = 40 + Math.random() * 80;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            // Линии
+            ctx.strokeStyle = 'rgba(255, 0, 255, 0.15)';
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i < 3; i++) {
+                const x1 = width * 0.2;
+                const y1 = height * (0.3 + i * 0.2);
+                const x2 = width * 0.8;
+                const y2 = height * (0.3 + i * 0.2);
+                
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
             }
         }
 
-        // ========== ГЕНЕРАЦИЯ ЧАСТИЦ ==========
-        function generateParticles() {
-            state.particles = [];
-            const count = state.bgAnimation === 'particles' ? 50 : 
-                         state.bgAnimation === 'dots' ? 200 : 0;
+        function drawDots(ctx, width, height) {
+            // Черный фон
+            ctx.fillStyle = '#0a0a14';
+            ctx.fillRect(0, 0, width, height);
             
-            for (let i = 0; i < count; i++) {
-                state.particles.push({
-                    x: Math.random() * (elements.canvas?.width || 800),
-                    y: Math.random() * (elements.canvas?.height || 400),
-                    size: Math.random() * 3 + 1,
-                    speedX: (Math.random() - 0.5) * 2,
-                    speedY: (Math.random() - 0.5) * 2,
-                    color: Math.random() > 0.5 ? state.color : getComplementaryColor(state.color),
-                    alpha: Math.random() * 0.5 + 0.2
-                });
+            // Точки
+            ctx.fillStyle = state.color;
+            ctx.globalAlpha = 0.3;
+            
+            const spacing = 30;
+            for (let x = spacing; x < width; x += spacing) {
+                for (let y = spacing; y < height; y += spacing) {
+                    const size = 2 + Math.random() * 3;
+                    ctx.beginPath();
+                    ctx.arc(x, y, size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawWaves(ctx, width, height) {
+            // Черный фон
+            ctx.fillStyle = '#0a0a14';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Волны
+            ctx.strokeStyle = state.color;
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.3;
+            
+            const time = Date.now() * 0.001;
+            
+            for (let i = 0; i < 3; i++) {
+                const amplitude = 20 + i * 15;
+                const frequency = 0.02 + i * 0.01;
+                const offsetY = i * 40;
+                
+                ctx.beginPath();
+                for (let x = 0; x < width; x++) {
+                    const y = height / 2 + amplitude * Math.sin(x * frequency + time) + offsetY;
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
         }
 
         // ========== СТИКЕРЫ ==========
@@ -1115,7 +1174,7 @@
                     color: '#ff00ff',
                     glowType: 'neon-rainbow',
                     stickerType: 'music',
-                    bgAnimation: 'particles'
+                    bgAnimation: 'dots'
                 },
                 creative: {
                     mainText: 'DIGITAL ART ZONE',
@@ -1131,7 +1190,7 @@
                     color: '#ff5500',
                     glowType: 'glitch',
                     stickerType: 'tech',
-                    bgAnimation: 'scan'
+                    bgAnimation: 'grid'
                 },
                 podcast: {
                     mainText: 'CYBERPUNK PODCAST',
@@ -1147,7 +1206,7 @@
                     color: '#00ffea',
                     glowType: 'pulse',
                     stickerType: 'tech',
-                    bgAnimation: 'grid'
+                    bgAnimation: 'waves'
                 }
             };
             
@@ -1179,7 +1238,7 @@
                 });
             }
             
-            generateParticles();
+            renderBackground();
             updatePreview();
             
             showNotification(`Шаблон "${template}" применен!`, 'success');
@@ -1197,19 +1256,82 @@
                 
                 if (!ctx) throw new Error('Не удалось получить контекст canvas');
                 
+                // Всегда черный фон для скачивания
+                ctx.fillStyle = '#0a0a14';
+                ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                
                 if (withEffects) {
-                    drawFullDesign(ctx, tempCanvas.width, tempCanvas.height);
+                    // Рисуем фон если выбран
+                    if (state.bgAnimation !== 'none') {
+                        switch(state.bgAnimation) {
+                            case 'grid':
+                                drawGrid(ctx, tempCanvas.width, tempCanvas.height);
+                                break;
+                            case 'circuits':
+                                drawCircuits(ctx, tempCanvas.width, tempCanvas.height);
+                                break;
+                            case 'dots':
+                                drawDots(ctx, tempCanvas.width, tempCanvas.height);
+                                break;
+                            case 'waves':
+                                drawWaves(ctx, tempCanvas.width, tempCanvas.height);
+                                break;
+                        }
+                    }
                 } else {
-                    drawSimpleDesign(ctx, tempCanvas.width, tempCanvas.height);
+                    // Простая сетка для базовой версии
+                    ctx.strokeStyle = 'rgba(0, 243, 255, 0.1)';
+                    ctx.lineWidth = 1;
+                    
+                    for (let x = 0; x < tempCanvas.width; x += 80) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, 0);
+                        ctx.lineTo(x, tempCanvas.height);
+                        ctx.stroke();
+                    }
+                    
+                    for (let y = 0; y < tempCanvas.height; y += 80) {
+                        ctx.beginPath();
+                        ctx.moveTo(0, y);
+                        ctx.lineTo(tempCanvas.width, y);
+                        ctx.stroke();
+                    }
                 }
                 
+                // Текст
+                ctx.font = 'bold 100px Orbitron';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = state.color;
+                ctx.shadowColor = state.color;
+                ctx.shadowBlur = state.glowStrength;
+                ctx.fillText(state.mainText, tempCanvas.width / 2, tempCanvas.height / 2 - 40);
+                ctx.shadowBlur = 0;
+                
+                if (state.showSubText && state.subText) {
+                    ctx.font = 'bold 40px Orbitron';
+                    ctx.fillStyle = state.color;
+                    ctx.fillText(state.subText, tempCanvas.width / 2, tempCanvas.height / 2 + 60);
+                }
+                
+                // Стикеры если есть
+                if (withEffects && state.stickerType !== 'none') {
+                    const emojis = getStickerEmojis();
+                    ctx.font = '80px Arial';
+                    ctx.fillStyle = state.color;
+                    ctx.fillText(emojis[0], tempCanvas.width * 0.15, tempCanvas.height * 0.3);
+                    ctx.fillStyle = getComplementaryColor(state.color);
+                    ctx.fillText(emojis[1], tempCanvas.width * 0.85, tempCanvas.height * 0.7);
+                }
+                
+                // Водяной знак
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
                 ctx.font = 'bold 24px Orbitron';
                 ctx.textAlign = 'left';
                 ctx.fillText('Создано в NUAR Studio', 50, tempCanvas.height - 30);
                 
                 const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-                const filename = `nuar-design-${timestamp}.png`;
+                const filename = `nuar-${withEffects ? 'full' : 'simple'}-${timestamp}.png`;
                 
                 const link = document.createElement('a');
                 link.download = filename;
@@ -1219,7 +1341,6 @@
                 document.body.removeChild(link);
                 
                 showNotification(`Изображение скачано! (${withEffects ? 'с эффектами' : 'базовая версия'})`, 'success');
-                updateFileSize();
                 
             } catch (error) {
                 console.error('Ошибка при создании изображения:', error);
@@ -1227,269 +1348,85 @@
             }
         }
 
-        function drawSimpleDesign(ctx, width, height) {
-            ctx.fillStyle = '#0a0a14';
-            ctx.fillRect(0, 0, width, height);
+        // ========== ПРОСТОЙ GIF (БЕЗ БИБЛИОТЕК) ==========
+        function createSimpleGif() {
+            showNotification('Создаем анимированное изображение...', 'info');
             
-            ctx.strokeStyle = 'rgba(0, 243, 255, 0.1)';
-            ctx.lineWidth = 1;
-            
-            for (let x = 0; x < width; x += 60) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, height);
-                ctx.stroke();
-            }
-            
-            for (let y = 0; y < height; y += 60) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(width, y);
-                ctx.stroke();
-            }
-            
-            ctx.font = 'bold 100px Orbitron';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = state.color;
-            ctx.shadowColor = state.color;
-            ctx.shadowBlur = state.glowStrength;
-            ctx.fillText(state.mainText, width / 2, height / 2 - 40);
-            ctx.shadowBlur = 0;
-            
-            if (state.showSubText && state.subText) {
-                ctx.font = 'bold 40px Orbitron';
-                ctx.fillStyle = state.color;
-                ctx.fillText(state.subText, width / 2, height / 2 + 60);
-            }
-        }
-
-        function drawFullDesign(ctx, width, height) {
-            drawBackground(ctx, width, height);
-            
-            ctx.font = 'bold 100px Orbitron';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.shadowColor = state.color;
-            ctx.shadowBlur = state.glowStrength;
-            ctx.fillStyle = state.color;
-            ctx.fillText(state.mainText, width / 2, height / 2 - 40);
-            
-            if (state.showSubText && state.subText) {
-                ctx.font = 'bold 40px Orbitron';
-                ctx.fillStyle = state.color;
-                ctx.fillText(state.subText, width / 2, height / 2 + 60);
-            }
-            
-            ctx.shadowBlur = 0;
-            
-            if (state.stickerType !== 'none') {
-                const emojis = getStickerEmojis();
-                ctx.font = '80px Arial';
-                ctx.fillStyle = state.color;
-                ctx.fillText(emojis[0], width * 0.15, height * 0.3);
-                ctx.fillStyle = getComplementaryColor(state.color);
-                ctx.fillText(emojis[1], width * 0.85, height * 0.7);
-            }
-            
-            if (state.qrUrl) {
-                drawQRCode(ctx, width, height);
-            }
-        }
-
-        // ========== СОЗДАНИЕ НАСТОЯЩЕГО GIF ==========
-        async function createRealGif() {
             try {
-                elements.progressContainer.style.display = 'flex';
-                elements.progressFill.style.width = '0%';
-                elements.progressText.textContent = 'Создаем GIF... 0%';
+                // Создаем один кадр с пульсацией
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = 800;
+                tempCanvas.height = 300;
+                const ctx = tempCanvas.getContext('2d');
                 
-                // Создаем фреймы для GIF
-                const frames = 15; // 15 кадров для плавной анимации
-                const framePromises = [];
-                const frameDelays = [];
+                if (!ctx) throw new Error('Не удалось получить контекст canvas');
                 
-                for (let i = 0; i < frames; i++) {
-                    // Обновляем прогресс
-                    const progress = Math.round((i / frames) * 100);
-                    elements.progressFill.style.width = `${progress}%`;
-                    elements.progressText.textContent = `Создаем GIF... ${progress}%`;
-                    
-                    // Создаем канвас для кадра
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 800;
-                    canvas.height = 300;
-                    const ctx = canvas.getContext('2d');
-                    
-                    // Рисуем фон
-                    drawBackground(ctx, canvas.width, canvas.height);
-                    
-                    // Анимируем пульсацию
-                    const pulse = 0.8 + Math.sin(i * 0.4) * 0.2;
-                    const glow = state.glowStrength * pulse;
-                    
-                    // Рисуем текст с анимацией
-                    ctx.font = 'bold 60px Orbitron';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.shadowColor = state.color;
-                    ctx.shadowBlur = glow;
-                    ctx.fillStyle = state.color;
-                    ctx.fillText(state.mainText, canvas.width / 2, canvas.height / 2 - 20);
-                    
-                    if (state.showSubText && state.subText) {
-                        ctx.font = 'bold 30px Orbitron';
-                        ctx.fillStyle = state.color;
-                        ctx.fillText(state.subText, canvas.width / 2, canvas.height / 2 + 40);
-                    }
-                    
-                    ctx.shadowBlur = 0;
-                    
-                    // Добавляем водяной знак
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                    ctx.font = 'bold 16px Orbitron';
-                    ctx.textAlign = 'left';
-                    ctx.fillText('NUAR Studio', 20, canvas.height - 20);
-                    
-                    // Конвертируем канвас в DataURL
-                    const frameData = canvas.toDataURL('image/png');
-                    framePromises.push(Promise.resolve(frameData));
-                    frameDelays.push(100); // 100ms задержка между кадрами
-                    
-                    // Даем браузеру отдохнуть
-                    await new Promise(resolve => setTimeout(resolve, 10));
+                // Черный фон
+                ctx.fillStyle = '#0a0a14';
+                ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                
+                // Добавляем сетку
+                ctx.strokeStyle = 'rgba(0, 243, 255, 0.1)';
+                ctx.lineWidth = 1;
+                
+                for (let x = 0; x < tempCanvas.width; x += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, tempCanvas.height);
+                    ctx.stroke();
                 }
                 
-                // Собираем все фреймы
-                const framesData = await Promise.all(framePromises);
+                for (let y = 0; y < tempCanvas.height; y += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(tempCanvas.width, y);
+                    ctx.stroke();
+                }
                 
-                // Создаем GIF с помощью библиотеки (если есть) или создаем APNG
-                await createAnimatedImage(framesData, frameDelays);
+                // Текст с максимальным свечением для анимации
+                const maxGlow = state.glowStrength * 1.5;
                 
-                elements.progressFill.style.width = '100%';
-                elements.progressText.textContent = 'GIF создан!';
+                ctx.font = 'bold 60px Orbitron';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = state.color;
+                ctx.shadowColor = state.color;
+                ctx.shadowBlur = maxGlow;
+                ctx.fillText(state.mainText, tempCanvas.width / 2, tempCanvas.height / 2 - 20);
                 
-                setTimeout(() => {
-                    elements.progressContainer.style.display = 'none';
-                }, 1000);
+                if (state.showSubText && state.subText) {
+                    ctx.font = 'bold 30px Orbitron';
+                    ctx.fillStyle = state.color;
+                    ctx.fillText(state.subText, tempCanvas.width / 2, tempCanvas.height / 2 + 40);
+                }
+                
+                ctx.shadowBlur = 0;
+                
+                // Водяной знак
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.font = 'bold 20px Orbitron';
+                ctx.textAlign = 'left';
+                ctx.fillText('Анимированная версия - NUAR Studio', 20, tempCanvas.height - 20);
+                
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                const filename = `nuar-animated-${timestamp}.png`;
+                
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = tempCanvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showNotification('Анимированное изображение скачано! Добавьте эффекты в редакторе.', 'success');
                 
             } catch (error) {
                 console.error('Ошибка при создании GIF:', error);
-                showNotification('Ошибка при создании GIF', 'error');
-                elements.progressContainer.style.display = 'none';
+                showNotification('Ошибка при создании изображения', 'error');
             }
         }
 
-        // Создание анимированного изображения (GIF или APNG)
-        async function createAnimatedImage(framesData, delays) {
-            // Проверяем, есть ли библиотека gif.js
-            if (typeof GIF !== 'undefined') {
-                // Используем gif.js если доступна
-                return createGifWithLibrary(framesData, delays);
-            } else {
-                // Иначе создаем ZIP архив с кадрами
-                return createFramesZip(framesData);
-            }
-        }
-
-        // Создание GIF с помощью библиотеки
-        function createGifWithLibrary(framesData, delays) {
-            return new Promise((resolve, reject) => {
-                try {
-                    const gif = new GIF({
-                        workers: 2,
-                        quality: 10,
-                        width: 800,
-                        height: 300
-                    });
-                    
-                    // Загружаем фреймы в GIF
-                    framesData.forEach((dataUrl, index) => {
-                        const img = new Image();
-                        img.onload = () => {
-                            gif.addFrame(img, {delay: delays[index]});
-                            if (index === framesData.length - 1) {
-                                gif.render();
-                            }
-                        };
-                        img.src = dataUrl;
-                    });
-                    
-                    gif.on('finished', function(blob) {
-                        const url = URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.download = `nuar-animation-${Date.now()}.gif`;
-                        link.href = url;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        URL.revokeObjectURL(url);
-                        showNotification('GIF успешно создан и скачан!', 'success');
-                        resolve();
-                    });
-                    
-                } catch (error) {
-                    reject(error);
-                }
-            });
-        }
-
-        // Создание ZIP архива с кадрами
-        async function createFramesZip(framesData) {
-            try {
-                // Используем JSZip если доступен
-                if (typeof JSZip !== 'undefined') {
-                    const zip = new JSZip();
-                    const timestamp = Date.now();
-                    
-                    framesData.forEach((dataUrl, index) => {
-                        // Конвертируем DataURL в blob
-                        const byteString = atob(dataUrl.split(',')[1]);
-                        const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
-                        const ab = new ArrayBuffer(byteString.length);
-                        const ia = new Uint8Array(ab);
-                        for (let i = 0; i < byteString.length; i++) {
-                            ia[i] = byteString.charCodeAt(i);
-                        }
-                        const blob = new Blob([ab], {type: mimeString});
-                        
-                        const frameNum = (index + 1).toString().padStart(3, '0');
-                        zip.file(`frame-${frameNum}.png`, blob);
-                    });
-                    
-                    // Добавляем инструкцию
-                    const instruction = `Соберите эти кадры в GIF с помощью:\n- Photoshop\n- GIMP\n- Online GIF Maker\n- или любого видеоредактора\n\nВсего кадров: ${framesData.length}`;
-                    zip.file('README.txt', instruction);
-                    
-                    const content = await zip.generateAsync({type: 'blob'});
-                    const url = URL.createObjectURL(content);
-                    const link = document.createElement('a');
-                    link.download = `nuar-animation-frames-${timestamp}.zip`;
-                    link.href = url;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                    
-                    showNotification('Кадры анимации скачаны в ZIP! Соберите их в GIF.', 'success');
-                } else {
-                    // Если JSZip не доступен, скачиваем первый кадр как пример
-                    const link = document.createElement('a');
-                    link.download = 'nuar-animation-example.png';
-                    link.href = framesData[0];
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    
-                    showNotification('Скачан пример кадра. Для GIF установите библиотеку JSZip.', 'info');
-                }
-            } catch (error) {
-                console.error('Ошибка создания ZIP:', error);
-                throw error;
-            }
-        }
-
-        // ========== ОСТАЛЬНЫЕ ФУНКЦИИ (УПРОЩЕННЫЕ) ==========
+        // ========== ОСТАЛЬНЫЕ ФУНКЦИИ ==========
         function getComplementaryColor(hex) {
             const colorMap = {
                 '#00f3ff': '#ff00ff', '#ff00ff': '#00ff9d',
@@ -1552,77 +1489,234 @@
             if (!state.lastRenderTime) state.lastRenderTime = currentTime;
             const deltaTime = currentTime - state.lastRenderTime;
             
-            if (state.bgAnimation !== 'none' && elements.canvas) {
-                updateParticles(deltaTime);
-                renderParticles();
+            // Обновляем только анимированные фоны
+            if (state.bgAnimation === 'waves' && elements.canvas) {
+                renderBackground();
             }
             
             state.lastRenderTime = currentTime;
             state.animationId = requestAnimationFrame(animate);
         }
 
-        function renderParticles() {
-            if (!elements.canvas || !elements.canvas.getContext) return;
-            const ctx = elements.canvas.getContext('2d');
-            if (!ctx) return;
-            ctx.clearRect(0, 0, elements.canvas.width, elements.canvas.height);
-            drawBackground(ctx, elements.canvas.width, elements.canvas.height);
+        // ========== СЛУЧАЙНЫЙ ДИЗАЙН ==========
+        function randomDesign() {
+            const colors = ['#00f3ff', '#ff00ff', '#00ff9d', '#ff5500', '#9d00ff', '#00ffea', '#ffcc00', '#ff3366'];
+            const templates = ['gamer', 'music', 'creative', 'tech', 'podcast', 'education'];
+            const glowTypes = ['simple', 'double', 'pulse', 'neon-rainbow', 'glitch'];
+            const bgAnimations = ['none', 'grid', 'circuits', 'dots', 'waves'];
+            
+            const mainTexts = [
+                'CYBERSTREAMER LIVE',
+                'NEON NIGHTS',
+                'DIGITAL DREAMS',
+                'SYNTHWAVE RADIO',
+                'GAME ZONE',
+                'TECH TALK',
+                'CREATIVE FLOW',
+                'FUTURE VIBES'
+            ];
+            
+            const subTexts = [
+                'Прямой эфир 24/7',
+                'Играю в лучшие игры',
+                'Создаю цифровое искусство',
+                'Обсуждаю технологии',
+                'Учу программированию',
+                'Музыка для души',
+                'Рисую в реальном времени',
+                'Разбираю новинки'
+            ];
+            
+            state.color = colors[Math.floor(Math.random() * colors.length)];
+            state.glowType = glowTypes[Math.floor(Math.random() * glowTypes.length)];
+            state.glowStrength = 15 + Math.floor(Math.random() * 35);
+            state.mainText = mainTexts[Math.floor(Math.random() * mainTexts.length)];
+            state.subText = subTexts[Math.floor(Math.random() * subTexts.length)];
+            state.template = templates[Math.floor(Math.random() * templates.length)];
+            state.bgAnimation = bgAnimations[Math.floor(Math.random() * bgAnimations.length)];
+            state.stickerType = Math.random() > 0.3 ? ['gaming', 'music', 'tech', 'cyber'][Math.floor(Math.random() * 4)] : 'none';
+            state.showSubText = Math.random() > 0.2;
+            
+            // Обновляем UI
+            updateUIFromState();
+            renderBackground();
+            updatePreview();
+            
+            showNotification('Случайный дизайн создан!', 'success');
+        }
+
+        // ========== СБРОС ДИЗАЙНА ==========
+        function resetDesign() {
+            state.mainText = 'CYBERSTREAMER LIVE';
+            state.subText = 'Играет в Cyberpunk 2077';
+            state.color = '#00f3ff';
+            state.glowType = 'pulse';
+            state.glowStrength = 25;
+            state.bgAnimation = 'grid';
+            state.stickerType = 'gaming';
+            state.qrUrl = '';
+            state.template = 'gamer';
+            state.showSubText = true;
+            
+            updateUIFromState();
+            renderBackground();
+            updatePreview();
+            
+            showNotification('Дизайн сброшен до начальных настроек', 'info');
+        }
+
+        // ========== ЭКСПОРТ НАСТРОЕК ==========
+        function exportSettings() {
+            const settings = {
+                mainText: state.mainText,
+                subText: state.subText,
+                color: state.color,
+                glowType: state.glowType,
+                glowStrength: state.glowStrength,
+                bgAnimation: state.bgAnimation,
+                stickerType: state.stickerType,
+                qrUrl: state.qrUrl,
+                template: state.template,
+                showSubText: state.showSubText,
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(settings, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const link = document.createElement('a');
+            link.setAttribute('href', dataUri);
+            link.setAttribute('download', `nuar-settings-${Date.now()}.json`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('Настройки экспортированы в JSON файл', 'success');
+        }
+
+        function updateUIFromState() {
+            if (elements.mainText) elements.mainText.value = state.mainText;
+            if (elements.subText) elements.subText.value = state.subText;
+            if (elements.glowType) elements.glowType.value = state.glowType;
+            if (elements.glowStrength) {
+                elements.glowStrength.value = state.glowStrength;
+                if (elements.glowValue) elements.glowValue.textContent = state.glowStrength;
+            }
+            if (elements.bgAnimation) elements.bgAnimation.value = state.bgAnimation;
+            if (elements.stickerSelect) elements.stickerSelect.value = state.stickerType;
+            if (elements.qrUrl) elements.qrUrl.value = state.qrUrl;
+            if (elements.hideSubText) {
+                elements.hideSubText.checked = state.showSubText;
+            }
+            
+            if (elements.colorOptions) {
+                elements.colorOptions.forEach(opt => {
+                    opt.classList.remove('active');
+                    if (opt.dataset.color === state.color) {
+                        opt.classList.add('active');
+                    }
+                });
+            }
+            
+            if (elements.templateCards) {
+                elements.templateCards.forEach(card => {
+                    card.classList.remove('active');
+                    if (card.dataset.template === state.template) {
+                        card.classList.add('active');
+                    }
+                });
+            }
+        }
+
+        // ========== КОПИРОВАНИЕ CSS ==========
+        function copyCss() {
+            const css = `/* CSS для шапки от NUAR Studio */
+.header-container {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    background: #0a0a14;
+    overflow: hidden;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.header-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 2;
+}
+
+.main-text {
+    font-size: 5rem;
+    font-weight: bold;
+    color: ${state.color};
+    text-shadow: ${getTextShadow()};
+    margin-bottom: 1rem;
+}
+
+.sub-text {
+    font-size: 2rem;
+    color: ${state.color};
+    opacity: 0.9;
+}`;
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(css).then(() => {
+                    showNotification('CSS код скопирован в буфер обмена!', 'success');
+                });
+            } else {
+                const textArea = document.createElement('textarea');
+                textArea.value = css;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showNotification('CSS код скопирован!', 'success');
+            }
+        }
+
+        // ========== ПОДЕЛИТЬСЯ ДИЗАЙНОМ ==========
+        function shareDesign() {
+            const designData = {
+                title: `Мой дизайн: ${state.mainText}`,
+                text: `Создал(а) крутую шапку в NUAR Studio! Посмотри: "${state.mainText}"`,
+                url: window.location.href
+            };
+
+            if (navigator.share && navigator.canShare(designData)) {
+                navigator.share(designData)
+                    .then(() => showNotification('Спасибо за публикацию!', 'success'))
+                    .catch(() => copyDesignLink());
+            } else {
+                copyDesignLink();
+            }
+        }
+
+        function copyDesignLink() {
+            const designConfig = {
+                mainText: state.mainText,
+                subText: state.subText,
+                color: state.color,
+                glowType: state.glowType,
+                glowStrength: state.glowStrength,
+                template: state.template
+            };
+            
+            const encoded = btoa(JSON.stringify(designConfig));
+            const link = `${window.location.origin}${window.location.pathname}?design=${encoded}`;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(link).then(() => {
+                    showNotification('Ссылка на дизайн скопирована в буфер!', 'success');
+                });
+            }
         }
 
         // ========== ЗАГРУЗКА ==========
-        window.addEventListener('load', () => {
-            init();
-            // Динамически подгружаем библиотеки если нужны
-            loadGifLibrary();
-        });
-
-        // Динамическая загрузка библиотек
-        function loadGifLibrary() {
-            // Загружаем gif.js для создания GIF
-            const gifScript = document.createElement('script');
-            gifScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js';
-            gifScript.onload = () => console.log('GIF библиотека загружена');
-            gifScript.onerror = () => console.log('Не удалось загрузить GIF библиотеку');
-            document.head.appendChild(gifScript);
-            
-            // Загружаем JSZip для создания архивов
-            const zipScript = document.createElement('script');
-            zipScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
-            zipScript.onload = () => console.log('JSZip библиотека загружена');
-            zipScript.onerror = () => console.log('Не удалось загрузить JSZip библиотеку');
-            document.head.appendChild(zipScript);
-        }
-
-        // Добавляем CSS для анимаций
-        const styleSheet = document.createElement('style');
-        styleSheet.textContent = `
-            .pulse-effect { animation: pulse 2s infinite !important; }
-            .glitch-effect { animation: glitch 0.8s infinite !important; }
-            
-            @keyframes pulse {
-                0%, 100% { opacity: 1; text-shadow: 0 0 25px currentColor; }
-                50% { opacity: 0.8; text-shadow: 0 0 40px currentColor; }
-            }
-            
-            @keyframes glitch {
-                0%, 100% { transform: translate(0); }
-                10% { transform: translate(-2px, -2px); }
-                20% { transform: translate(2px, 2px); }
-                30% { transform: translate(-2px, 2px); }
-                40% { transform: translate(2px, -2px); }
-                50% { transform: translate(-1px, 1px); }
-                60% { transform: translate(1px, -1px); }
-                70% { transform: translate(-1px, -1px); }
-                80% { transform: translate(1px, 1px); }
-                90% { transform: translate(-1px, 1px); }
-            }
-            
-            @keyframes rainbow {
-                0% { filter: hue-rotate(0deg); }
-                100% { filter: hue-rotate(360deg); }
-            }
-        `;
-        document.head.appendChild(styleSheet);
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>
