@@ -15,197 +15,439 @@
             --neon-blue: #00f3ff;
             --neon-pink: #ff00ff;
             --neon-green: #00ff9d;
+            --neon-orange: #ff5500;
+            --neon-purple: #9d00ff;
+            --neon-yellow: #ffcc00;
+            --neon-cyan: #00ffff;
             --dark-bg: #0a0a14;
-            --panel-bg: rgba(20, 25, 40, 0.97);
+            --panel-bg: rgba(15, 20, 35, 0.95);
+            --text-main: #ffffff;
+            --text-dim: #a0b8d0;
+            --border-glow: rgba(0, 243, 255, 0.6);
+            --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             background: var(--dark-bg);
-            color: white;
+            color: var(--text-main);
             font-family: 'JetBrains Mono', monospace;
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative;
         }
-        
-        /* ФОНЫ */
-        .cyber-bg {
+
+        /* === ЖИВОЙ АНИМИРОВАННЫЙ ФОН === */
+        #backgroundCanvas {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: 
-                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
-            opacity: 0.4;
-            z-index: -1;
-            animation: gridMove 40s linear infinite;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+            pointer-events: none;
         }
-        
-        @keyframes gridMove {
-            0% { background-position: 0 0; }
-            100% { background-position: 120px 120px; }
+
+        .particles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            pointer-events: none;
         }
-        
-        /* НАВИГАЦИЯ С ЛОГОТИПОМ */
+
+        /* === НАВИГАЦИЯ === */
         .navbar {
             background: rgba(10, 15, 30, 0.98);
-            padding: 1rem 2rem;
+            padding: 1.5rem 3rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(0, 243, 255, 0.3);
-            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glow);
+            backdrop-filter: blur(30px);
             position: sticky;
             top: 0;
             z-index: 1000;
+            box-shadow: 0 10px 50px rgba(0, 243, 255, 0.2);
         }
-        
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
+
         .logo {
             font-family: 'Orbitron', sans-serif;
-            font-size: 2rem;
-            background: linear-gradient(135deg, #00f3ff, #ff00ff);
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink), var(--neon-cyan));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-weight: 800;
+            gap: 15px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            animation: logo-shimmer 3s infinite alternate;
         }
-        
+
+        @keyframes logo-shimmer {
+            0% { filter: drop-shadow(0 0 10px var(--neon-blue)); }
+            100% { filter: drop-shadow(0 0 25px var(--neon-pink)); }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.1), rgba(255, 0, 255, 0.1));
+            border: 2px solid transparent;
+            border-image: linear-gradient(45deg, var(--neon-blue), var(--neon-pink)) 1;
+            color: var(--neon-blue);
+            border-radius: 12px;
+            font-family: 'Orbitron', sans-serif;
+            text-decoration: none;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .nav-btn:hover {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink));
+            color: white;
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 243, 255, 0.4);
+        }
+
+        /* === ШАПКА С ЛОГОТИПОМ КАК В ПЕРЕВОДЧИКЕ === */
+        .hero {
+            text-align: center;
+            padding: 6rem 2rem 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 243, 255, 0.1) 0%, transparent 70%);
+            filter: blur(100px);
+            z-index: -1;
+        }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
         .logo-icon {
-            color: #00f3ff;
-            animation: spinSlow 10s linear infinite;
-            font-size: 2.5rem;
+            font-size: 5rem;
+            color: transparent;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink), var(--neon-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            filter: drop-shadow(0 0 30px currentColor);
+            animation: icon-rotate 20s infinite linear;
         }
-        
-        @keyframes spinSlow {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        @keyframes icon-rotate {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.05); }
+            100% { transform: rotate(360deg) scale(1); }
         }
-        
-        /* ОСНОВНОЙ КОНТЕЙНЕР */
+
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, var(--neon-blue), #ffffff, var(--neon-pink), var(--neon-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+            animation: title-flow 6s infinite linear;
+            background-size: 300% 300%;
+        }
+
+        @keyframes title-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .hero-subtitle {
+            font-size: 1.4rem;
+            color: var(--text-dim);
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            line-height: 1.8;
+        }
+
+        /* === ОСНОВНОЙ КОНТЕЙНЕР === */
         .main-container {
             display: grid;
             grid-template-columns: 350px 1fr;
-            gap: 2rem;
+            gap: 3rem;
             padding: 2rem;
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
-        
-        /* ЛЕВАЯ ПАНЕЛЬ */
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* === ЛЕВАЯ ПАНЕЛЬ === */
         .settings-panel {
             background: var(--panel-bg);
-            border-radius: 20px;
-            padding: 1.5rem;
-            border: 1px solid rgba(0, 243, 255, 0.2);
-            backdrop-filter: blur(10px);
-            height: fit-content;
+            backdrop-filter: blur(30px);
+            border-radius: 25px;
+            padding: 2.5rem;
+            border: 2px solid transparent;
+            border-image: linear-gradient(45deg, var(--neon-blue), var(--neon-pink)) 1;
+            box-shadow: 
+                0 30px 80px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
             position: sticky;
-            top: 100px;
+            top: 120px;
+            height: fit-content;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .settings-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--neon-blue),
+                var(--neon-pink),
+                var(--neon-cyan),
+                transparent
+            );
+            animation: border-run 3s linear infinite;
+        }
+
+        @keyframes border-run {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
         .panel-title {
-            color: #00f3ff;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+        }
+
+        .panel-title i {
+            font-size: 2.2rem;
+            color: var(--neon-blue);
+            animation: icon-bounce 2s infinite ease-in-out;
+        }
+
+        @keyframes icon-bounce {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(10deg); }
+        }
+
+        .panel-title h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+        }
+
+        /* === КАТЕГОРИИ НАСТРОЕК === */
+        .category {
+            background: rgba(20, 25, 45, 0.9);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            transition: var(--transition);
+        }
+
+        .category:hover {
+            border-color: var(--neon-blue);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 243, 255, 0.15);
+        }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            color: var(--neon-pink);
             font-family: 'Orbitron', sans-serif;
             font-size: 1.3rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
-        
-        .category {
-            margin-bottom: 2rem;
+
+        .category-title i {
+            font-size: 1.5rem;
+            color: var(--neon-pink);
         }
-        
-        .category-title {
-            color: #ff00ff;
-            font-family: 'Orbitron', sans-serif;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
+
         .control-item {
-            margin-bottom: 1.2rem;
+            margin-bottom: 1.8rem;
         }
-        
-        label {
+
+        .control-item label {
             display: block;
-            color: #a0b8d0;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
+            color: var(--text-dim);
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        
+
         input[type="text"], input[type="range"], select {
             width: 100%;
-            padding: 12px;
+            padding: 1rem;
             background: rgba(0, 10, 20, 0.8);
-            border: 1px solid rgba(0, 243, 255, 0.3);
-            border-radius: 10px;
+            border: 2px solid rgba(0, 243, 255, 0.3);
+            border-radius: 12px;
             color: white;
             font-family: 'JetBrains Mono', monospace;
             font-size: 1rem;
+            transition: var(--transition);
         }
-        
+
         input[type="text"]:focus, select:focus {
             outline: none;
-            border-color: #00f3ff;
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
         }
-        
+
+        /* === ЦВЕТОВАЯ ПАЛИТРА - ИСПРАВЛЕНО === */
         .color-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 8px;
-            margin-top: 0.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 0.8rem;
+            margin-top: 1rem;
         }
-        
+
         .color-option {
-            width: 35px;
-            height: 35px;
-            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.2s;
-            border: 2px solid transparent;
+            transition: var(--transition);
+            border: 3px solid transparent;
+            position: relative;
+            flex-shrink: 0;
         }
-        
+
         .color-option:hover {
-            transform: scale(1.15);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px currentColor;
         }
-        
+
         .color-option.active {
             border-color: white;
             box-shadow: 0 0 15px currentColor;
+            animation: color-pulse 1.5s infinite alternate;
         }
-        
-        /* ПРЕДПРОСМОТР */
+
+        @keyframes color-pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+
+        /* === СЛАЙДЕРЫ === */
+        input[type="range"] {
+            width: 100%;
+            height: 10px;
+            -webkit-appearance: none;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+            border-radius: 5px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: 3px solid var(--neon-blue);
+            box-shadow: 0 0 15px var(--neon-blue);
+            transition: var(--transition);
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: var(--neon-blue);
+        }
+
+        /* === ПРЕДПРОСМОТР === */
         .preview-container {
-            background: var(--panel-bg);
-            border-radius: 20px;
-            padding: 2.5rem;
-            border: 1px solid rgba(255, 0, 255, 0.2);
-            backdrop-filter: blur(10px);
-            min-height: 600px;
+            background: rgba(0, 10, 25, 0.9);
+            border-radius: 30px;
+            padding: 3rem;
+            border: 2px solid rgba(0, 243, 255, 0.3);
+            box-shadow: inset 0 0 50px rgba(0, 243, 255, 0.1);
             position: relative;
-            overflow: hidden;
+            min-height: 600px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
         }
-        
+
+        .preview-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink), var(--neon-cyan));
+            border-radius: 32px;
+            z-index: -1;
+            animation: preview-glow 4s infinite alternate;
+        }
+
+        @keyframes preview-glow {
+            0% { opacity: 0.3; filter: blur(5px); }
+            100% { opacity: 0.5; filter: blur(10px); }
+        }
+
         #renderCanvas {
             position: absolute;
             top: 0;
@@ -214,251 +456,355 @@
             height: 100%;
             z-index: 1;
             pointer-events: none;
+            border-radius: 30px;
         }
-        
+
+        /* === ТЕКСТ ПРЕДПРОСМОТРА - ИСПРАВЛЕНО СВЕЧЕНИЕ === */
         .live-text {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 3.5rem;
-            text-align: center;
-            margin: 2rem 0;
-            padding: 2rem;
-            border-radius: 15px;
-            background: rgba(0, 0, 0, 0.2);
-            min-height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             position: relative;
             z-index: 2;
+            text-align: center;
+            padding: 3rem;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
             width: 100%;
+            max-width: 900px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            box-sizing: border-box;
+            overflow: hidden;
         }
-        
+
+        .live-text:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 15px 30px rgba(0, 243, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
         .main-preview {
-            font-size: 3.5rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            color: #00f3ff;
-            text-shadow: 0 0 25px #00f3ff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            color: var(--neon-blue);
+            text-shadow: 
+                0 0 10px var(--neon-blue),
+                0 0 5px rgba(255, 255, 255, 0.5);
+            letter-spacing: 2px;
+            line-height: 1.2;
+            word-wrap: break-word;
+            max-width: 100%;
+            padding: 0 1rem;
         }
-        
+
         .sub-preview {
-            font-size: 1.8rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6rem;
+            color: var(--neon-cyan);
+            text-shadow: 
+                0 0 8px var(--neon-cyan),
+                0 0 4px rgba(255, 255, 255, 0.3);
             opacity: 0.9;
-            color: #00f3ff;
-            text-shadow: 0 0 15px #00f3ff;
+            line-height: 1.3;
+            word-wrap: break-word;
+            max-width: 100%;
+            padding: 0 1rem;
         }
-        
-        /* КНОПКИ */
+
+        /* === КНОПКИ ДЕЙСТВИЙ === */
         .action-buttons {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-top: 2rem;
+            gap: 1.5rem;
+            margin-top: 3rem;
             width: 100%;
+            max-width: 900px;
             z-index: 2;
         }
-        
+
         .action-btn {
-            padding: 15px;
+            padding: 1.2rem 1.8rem;
             border: none;
-            border-radius: 12px;
+            border-radius: 15px;
             font-family: 'Orbitron', sans-serif;
-            font-weight: 600;
+            font-size: 1rem;
+            font-weight: 700;
             cursor: pointer;
+            transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            transition: all 0.3s;
-            font-size: 1rem;
+            gap: 0.8rem;
+            position: relative;
+            overflow: hidden;
         }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #00f3ff, #9d00ff);
-            color: white;
-        }
-        
-        .btn-success {
-            background: linear-gradient(135deg, #00ff9d, #00b36b);
-            color: white;
-        }
-        
-        .btn-warning {
-            background: linear-gradient(135deg, #ff5500, #ff9900);
-            color: white;
-        }
-        
-        .btn-secondary {
-            background: rgba(0, 243, 255, 0.1);
-            color: #00f3ff;
-            border: 2px solid #00f3ff;
-        }
-        
+
         .action-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 10px 25px rgba(0, 243, 255, 0.4);
         }
-        
-        /* ПОДПИСКА */
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan));
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--neon-green), #00b36b);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--neon-orange), #ff9900);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(0, 243, 255, 0.1);
+            color: var(--neon-blue);
+            border: 2px solid var(--neon-blue);
+        }
+
+        /* === БЫСТРЫЕ КНОПКИ === */
+        .quick-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        /* === СТАТУС БАР === */
+        .status-bar {
+            background: rgba(20, 25, 45, 0.9);
+            padding: 1.2rem;
+            border-radius: 15px;
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 900px;
+            z-index: 2;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            box-sizing: border-box;
+        }
+
+        .status-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* === ПОДПИСКА === */
         .subscription-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.95);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 10000;
         }
-        
+
         .subscription-box {
             background: var(--panel-bg);
-            border-radius: 20px;
+            border-radius: 30px;
             padding: 2.5rem;
-            border: 1px solid rgba(0, 243, 255, 0.3);
+            border: 2px solid transparent;
+            border-image: linear-gradient(45deg, var(--neon-blue), var(--neon-pink)) 1;
             max-width: 500px;
             width: 90%;
             text-align: center;
+            position: relative;
+            box-shadow: 0 30px 80px rgba(0, 243, 255, 0.3);
         }
-        
+
         .subscription-title {
-            color: #00f3ff;
+            color: var(--neon-blue);
             font-family: 'Orbitron', sans-serif;
             font-size: 2rem;
             margin-bottom: 1.5rem;
         }
-        
+
         .subscription-features {
             text-align: left;
             margin: 2rem 0;
-            color: #a0b8d0;
+            color: var(--text-dim);
         }
-        
+
         .subscription-features li {
-            margin: 10px 0;
+            margin: 0.8rem 0;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 1rem;
+            font-size: 1rem;
         }
-        
+
         .price {
             font-size: 2.5rem;
-            color: #00ff9d;
+            color: var(--neon-green);
             font-family: 'Orbitron', sans-serif;
             margin: 1.5rem 0;
         }
-        
+
         .subscription-btn {
-            background: linear-gradient(135deg, #00f3ff, #ff00ff);
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink));
             color: white;
             border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
+            padding: 1.2rem 2.5rem;
+            border-radius: 12px;
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
             width: 100%;
             margin-top: 1rem;
+            transition: var(--transition);
         }
-        
+
         .subscription-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0, 243, 255, 0.4);
+            box-shadow: 0 15px 30px rgba(0, 243, 255, 0.4);
         }
-        
+
         .close-subscription {
             position: absolute;
             top: 20px;
             right: 20px;
             background: none;
             border: none;
-            color: white;
-            font-size: 1.5rem;
+            color: var(--text-dim);
+            font-size: 1.8rem;
             cursor: pointer;
+            transition: var(--transition);
         }
-        
-        /* УВЕДОМЛЕНИЯ */
+
+        .close-subscription:hover {
+            color: var(--neon-blue);
+            transform: scale(1.1);
+        }
+
+        /* === УВЕДОМЛЕНИЯ === */
         .notification {
             position: fixed;
-            top: 100px;
+            top: 120px;
             right: 20px;
-            background: linear-gradient(135deg, #00f3ff, #0099cc);
+            background: linear-gradient(135deg, var(--neon-blue), #0099cc);
             color: white;
-            padding: 15px 25px;
+            padding: 1.2rem 2.5rem;
             border-radius: 12px;
             font-family: 'Orbitron', sans-serif;
-            font-weight: 600;
+            font-weight: 700;
             z-index: 10000;
             animation: slideInRight 0.3s ease-out;
-            max-width: 400px;
+            max-width: 350px;
+            box-shadow: 0 10px 25px rgba(0, 243, 255, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
+
         @keyframes slideInRight {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
-        
-        @keyframes slideOutRight {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-        
-        /* СТАТУС БАР */
-        .status-bar {
-            background: rgba(0, 10, 20, 0.8);
-            padding: 1rem;
-            border-radius: 10px;
-            margin-top: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-            color: #a0b8d0;
-            width: 100%;
-            z-index: 2;
-        }
-        
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #00ff9d;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        /* АДАПТИВНОСТЬ */
-        @media (max-width: 992px) {
-            .main-container { grid-template-columns: 1fr; padding: 1rem; }
-            .settings-panel { position: static; }
-            .live-text { font-size: 2.5rem; }
-            .main-preview { font-size: 2.5rem; }
-            .action-buttons { grid-template-columns: 1fr; }
+
+        /* === АДАПТИВНОСТЬ === */
+        @media (max-width: 768px) {
+            .navbar { 
+                padding: 1rem; 
+                flex-direction: column; 
+                gap: 1rem; 
+            }
+            .hero { 
+                padding: 4rem 1rem 2rem; 
+            }
+            .logo-icon {
+                font-size: 4rem;
+            }
+            .hero h1 { 
+                font-size: 2.2rem; 
+                letter-spacing: 1px;
+            }
+            .main-container { 
+                padding: 1rem; 
+            }
+            .settings-panel { 
+                position: static; 
+                padding: 1.5rem;
+            }
+            .preview-container { 
+                padding: 1.5rem; 
+                min-height: 500px;
+            }
+            .main-preview { 
+                font-size: 2rem; 
+                padding: 0 0.5rem;
+            }
+            .sub-preview { 
+                font-size: 1.2rem; 
+                padding: 0 0.5rem;
+            }
+            .action-buttons { 
+                grid-template-columns: 1fr; 
+                gap: 1rem;
+            }
+            .color-grid { 
+                grid-template-columns: repeat(auto-fill, minmax(35px, 1fr)); 
+            }
+            .color-option {
+                width: 35px;
+                height: 35px;
+            }
+            .notification { 
+                right: 10px; 
+                left: 10px; 
+                max-width: none; 
+                top: 100px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="cyber-bg"></div>
+    <!-- ЖИВОЙ ФОН -->
+    <canvas id="backgroundCanvas"></canvas>
+    <div class="particles" id="particlesContainer"></div>
     
     <!-- ПОДПИСКА -->
     <div class="subscription-overlay" id="subscriptionOverlay">
         <div class="subscription-box">
             <button class="close-subscription" id="closeSubscription">✕</button>
             <div class="subscription-title">NUAR PRO</div>
-            <p style="color: #a0b8d0; margin-bottom: 1.5rem;">Премиум доступ для профессионалов</p>
+            <p style="color: var(--text-dim); margin-bottom: 1.5rem;">Премиум доступ для профессионалов</p>
             
             <div class="subscription-features">
-                <li><i class="fas fa-check" style="color:#00ff9d;"></i> Без водяных знаков</li>
-                <li><i class="fas fa-check" style="color:#00ff9d;"></i> Экспорт в 4K качестве</li>
-                <li><i class="fas fa-check" style="color:#00ff9d;"></i> Все премиум-шаблоны</li>
-                <li><i class="fas fa-check" style="color:#00ff9d;"></i> Приоритетная поддержка</li>
-                <li><i class="fas fa-check" style="color:#00ff9d;"></i> Анимированные GIF без ограничений</li>
+                <li><i class="fas fa-check" style="color:var(--neon-green);"></i> Без водяных знаков</li>
+                <li><i class="fas fa-check" style="color:var(--neon-green);"></i> Экспорт в 8K качестве</li>
+                <li><i class="fas fa-check" style="color:var(--neon-green);"></i> Все премиум-шаблоны</li>
+                <li><i class="fas fa-check" style="color:var(--neon-green);"></i> Приоритетная поддержка</li>
+                <li><i class="fas fa-check" style="color:var(--neon-green);"></i> Анимированные GIF без ограничений</li>
             </div>
             
             <div class="price">399₽ / месяц</div>
@@ -467,51 +813,61 @@
                 <i class="fas fa-crown"></i> КУПИТЬ ПОДПИСКУ
             </button>
             
-            <p style="color: #a0b8d0; font-size: 0.9rem; margin-top: 1.5rem;">
+            <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 1.5rem;">
                 После оплаты отправьте скриншот чека на sauronaaaa@yandex.ru
             </p>
         </div>
     </div>
     
     <!-- НАВИГАЦИЯ -->
-   <nav class="navbar">
-    <div class="logo-container">
+    <nav class="navbar">
         <div class="logo">
-            <i class="fas fa-brain logo-icon"></i> NUAR STUDIO
+            <i class="fas fa-brain"></i> NUAR STUDIO
         </div>
-    </div>
+        
+        <div class="nav-links">
+            <a href="https://benzo-music.github.io/NUAR/" target="_blank" class="nav-btn">
+                <i class="fas fa-language"></i> Переводчик
+            </a>
+            <button class="nav-btn" id="subscriptionBtn">
+                <i class="fas fa-crown"></i> PRO ВЕРСИЯ
+            </button>
+        </div>
+    </nav>
     
-    <!-- ДОБАВЬ ЭТУ КНОПКУ -->
-    <a href="https://benzo-music.github.io/NUAR/" target="_blank" 
-       class="btn-secondary" 
-       style="padding: 10px 20px; margin-right: 10px; text-decoration: none;">
-        <i class="fas fa-language"></i> Переводчик
-    </a>
-    
-    <button class="btn-secondary" id="subscriptionBtn" style="padding: 10px 20px;">
-        <i class="fas fa-crown"></i> PRO ВЕРСИЯ
-    </button>
-</nav>
+    <!-- ШАПКА С ЛОГОТИПОМ КАК В ПЕРЕВОДЧИКЕ -->
+    <section class="hero">
+        <div class="logo-container">
+            <i class="fas fa-brain logo-icon"></i>
+            <h1>NUAR STUDIO</h1>
+        </div>
+        <p class="hero-subtitle">
+            Профессиональный редактор киберпанк-дизайнов с живыми эффектами, 
+            неоновыми свечениями и анимациями в реальном времени.
+        </p>
+    </section>
     
     <!-- ОСНОВНОЙ КОНТЕЙНЕР -->
     <div class="main-container">
         <!-- ЛЕВАЯ ПАНЕЛЬ -->
         <div class="settings-panel">
             <div class="panel-title">
-                <i class="fas fa-sliders-h"></i> НАСТРОЙКИ
+                <i class="fas fa-sliders-h"></i>
+                <h2>НАСТРОЙКИ</h2>
             </div>
             
             <!-- ТЕКСТ -->
             <div class="category">
                 <div class="category-title">
-                    <i class="fas fa-font"></i> ТЕКСТ
+                    <i class="fas fa-font"></i>
+                    <h3>ТЕКСТ</h3>
                 </div>
                 <div class="control-item">
-                    <label>Основной текст:</label>
+                    <label for="mainText">Основной текст: <span id="mainTextLength">0/30</span></label>
                     <input type="text" id="mainText" value="CYBERSTREAMER LIVE" maxlength="30">
                 </div>
                 <div class="control-item">
-                    <label>Второстепенный текст:</label>
+                    <label for="subText">Второстепенный текст: <span id="subTextLength">0/40</span></label>
                     <input type="text" id="subText" value="Играет в Cyberpunk 2077" maxlength="40">
                 </div>
             </div>
@@ -519,7 +875,8 @@
             <!-- ЦВЕТА -->
             <div class="category">
                 <div class="category-title">
-                    <i class="fas fa-palette"></i> ЦВЕТА
+                    <i class="fas fa-palette"></i>
+                    <h3>ЦВЕТА</h3>
                 </div>
                 <div class="control-item">
                     <label>Цвет текста:</label>
@@ -529,20 +886,26 @@
                         <div class="color-option" style="background:#00ff9d;" data-color="#00ff9d"></div>
                         <div class="color-option" style="background:#ff5500;" data-color="#ff5500"></div>
                         <div class="color-option" style="background:#9d00ff;" data-color="#9d00ff"></div>
-                        <div class="color-option" style="background:#ff009d;" data-color="#ff009d"></div>
+                        <div class="color-option" style="background:#ffcc00;" data-color="#ffcc00"></div>
+                        <div class="color-option" style="background:#00ffff;" data-color="#00ffff"></div>
+                        <div class="color-option" style="background:#ff0066;" data-color="#ff0066"></div>
+                        <div class="color-option" style="background:#8a2be2;" data-color="#8a2be2"></div>
+                        <div class="color-option" style="background:#00ced1;" data-color="#00ced1"></div>
+                        <div class="color-option" style="background:#ff1493;" data-color="#ff1493"></div>
+                        <div class="color-option" style="background:#ffff00;" data-color="#ffff00"></div>
                     </div>
                 </div>
                 
-                <!-- ВЫБОР ЦВЕТА ФОНА (ДОБАВЛЕНО) -->
+                <!-- ЦВЕТ ФОНА -->
                 <div class="control-item">
                     <label>Цвет фона:</label>
                     <div class="color-grid">
-                        <div class="color-option active" style="background:#0a0a14;" data-bg-color="#0a0a14" title="Темный фон"></div>
-                        <div class="color-option" style="background:#000000;" data-bg-color="#000000" title="Черный"></div>
-                        <div class="color-option" style="background:#111827;" data-bg-color="#111827" title="Серо-синий"></div>
-                        <div class="color-option" style="background:#1a1a2e;" data-bg-color="#1a1a2e" title="Фиолетово-черный"></div>
-                        <div class="color-option" style="background:#16213e;" data-bg-color="#16213e" title="Темно-синий"></div>
-                        <div class="color-option" style="background:#0f3460;" data-bg-color="#0f3460" title="Синий"></div>
+                        <div class="color-option active" style="background:#0a0a14;" data-bg-color="#0a0a14"></div>
+                        <div class="color-option" style="background:#000000;" data-bg-color="#000000"></div>
+                        <div class="color-option" style="background:#111827;" data-bg-color="#111827"></div>
+                        <div class="color-option" style="background:#1a1a2e;" data-bg-color="#1a1a2e"></div>
+                        <div class="color-option" style="background:#16213e;" data-bg-color="#16213e"></div>
+                        <div class="color-option" style="background:#0f3460;" data-bg-color="#0f3460"></div>
                     </div>
                 </div>
             </div>
@@ -550,11 +913,12 @@
             <!-- ЭФФЕКТЫ -->
             <div class="category">
                 <div class="category-title">
-                    <i class="fas fa-magic"></i> ЭФФЕКТЫ
+                    <i class="fas fa-magic"></i>
+                    <h3>ЭФФЕКТЫ</h3>
                 </div>
                 <div class="control-item">
-                    <label>Сила свечения: <span id="glowValue">25</span>px</label>
-                    <input type="range" id="glowStrength" min="5" max="60" value="25">
+                    <label>Сила свечения: <span id="glowValue">15</span>px</label>
+                    <input type="range" id="glowStrength" min="2" max="30" value="15">
                 </div>
                 <div class="control-item">
                     <label>Анимированный фон:</label>
@@ -572,18 +936,21 @@
             <!-- БЫСТРЫЕ ДЕЙСТВИЯ -->
             <div class="category">
                 <div class="category-title">
-                    <i class="fas fa-bolt"></i> БЫСТРЫЕ ДЕЙСТВИЯ
+                    <i class="fas fa-bolt"></i>
+                    <h3>БЫСТРЫЕ ДЕЙСТВИЯ</h3>
                 </div>
-                <button class="action-btn btn-secondary" id="randomBtn" style="width:100%; margin-bottom:0.5rem;">
-                    <i class="fas fa-random"></i> СЛУЧАЙНЫЙ ДИЗАЙН
-                </button>
-                <button class="action-btn btn-secondary" id="resetBtn" style="width:100%;">
-                    <i class="fas fa-redo"></i> СБРОСИТЬ
-                </button>
+                <div class="quick-buttons">
+                    <button class="action-btn btn-secondary" id="randomBtn">
+                        <i class="fas fa-random"></i> СЛУЧАЙНЫЙ ДИЗАЙН
+                    </button>
+                    <button class="action-btn btn-secondary" id="resetBtn">
+                        <i class="fas fa-redo"></i> СБРОСИТЬ
+                    </button>
+                </div>
             </div>
         </div>
         
-        <!-- ПРЕДПРОСМОТР -->
+        <!-- ПРАВАЯ ПАНЕЛЬ -->
         <div class="preview-section">
             <div class="preview-container">
                 <!-- КАНВАС ДЛЯ ФОНОВ -->
@@ -591,10 +958,8 @@
                 
                 <!-- ЖИВОЙ ПРЕДПРОСМОТР -->
                 <div class="live-text">
-                    <div>
-                        <div class="main-preview" id="mainPreview">CYBERSTREAMER LIVE</div>
-                        <div class="sub-preview" id="subPreview">Играет в Cyberpunk 2077</div>
-                    </div>
+                    <div class="main-preview" id="mainPreview">CYBERSTREAMER LIVE</div>
+                    <div class="sub-preview" id="subPreview">Играет в Cyberpunk 2077</div>
                 </div>
                 
                 <!-- КНОПКИ ДЕЙСТВИЙ -->
@@ -615,7 +980,7 @@
                 
                 <!-- СТАТУС БАР -->
                 <div class="status-bar">
-                    <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="status-info">
                         <div class="status-dot"></div>
                         <span>Готов к экспорту</span>
                     </div>
@@ -628,13 +993,21 @@
     </div>
 
     <script>
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            initAnimatedBackground();
+            initParticles();
+            initApp();
+            showNotification('🚀 NUAR Studio загружен! Готов к созданию дизайнов!');
+        });
+
         // ========== СОСТОЯНИЕ ==========
         const state = {
             mainText: 'CYBERSTREAMER LIVE',
             subText: 'Играет в Cyberpunk 2077',
             color: '#00f3ff',
-            backgroundColor: '#0a0a14', // Добавлен цвет фона
-            glowStrength: 25,
+            backgroundColor: '#0a0a14',
+            glowStrength: 15, // Уменьшено с 25 до 15
             bgAnimation: 'grid',
             isSubscribed: false,
             particles: []
@@ -650,8 +1023,8 @@
             glowStrength: document.getElementById('glowStrength'),
             glowValue: document.getElementById('glowValue'),
             bgAnimation: document.getElementById('bgAnimation'),
-            colorOptions: document.querySelectorAll('.color-option'),
-            bgColorOptions: document.querySelectorAll('.color-option[data-bg-color]'), // Добавлены цвета фона
+            colorOptions: document.querySelectorAll('.color-option[data-color]'),
+            bgColorOptions: document.querySelectorAll('.color-option[data-bg-color]'),
             downloadSimpleBtn: document.getElementById('downloadSimpleBtn'),
             downloadFullBtn: document.getElementById('downloadFullBtn'),
             downloadGifBtn: document.getElementById('downloadGifBtn'),
@@ -662,26 +1035,27 @@
             subscriptionOverlay: document.getElementById('subscriptionOverlay'),
             closeSubscription: document.getElementById('closeSubscription'),
             buySubscriptionBtn: document.getElementById('buySubscriptionBtn'),
-            fileSize: document.getElementById('fileSize')
+            fileSize: document.getElementById('fileSize'),
+            mainTextLength: document.getElementById('mainTextLength'),
+            subTextLength: document.getElementById('subTextLength')
         };
-        
-        // ========== ИНИЦИАЛИЗАЦИЯ ==========
-        function init() {
+
+        // ========== ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ==========
+        function initApp() {
             setupCanvas();
             setupEventListeners();
             updatePreview();
             drawBackground();
-            showNotification('NUAR Studio загружен!');
             
-            // Проверяем подписку в localStorage
+            // Проверяем подписку
             if (localStorage.getItem('nuar_pro') === 'true') {
                 state.isSubscribed = true;
-                showNotification('PRO версия активирована!');
                 elements.subscriptionBtn.innerHTML = '<i class="fas fa-crown"></i> PRO АКТИВНА';
-                elements.subscriptionBtn.style.background = 'linear-gradient(135deg, #00ff9d, #00b36b)';
+                elements.subscriptionBtn.style.background = 'linear-gradient(135deg, var(--neon-green), #00b36b)';
             }
         }
-        
+
+        // ========== НАСТРОЙКА КАНВАСА ==========
         function setupCanvas() {
             const container = document.querySelector('.preview-container');
             if (container && elements.canvas) {
@@ -689,33 +1063,38 @@
                 elements.canvas.height = container.clientHeight;
             }
         }
-        
+
+        // ========== НАСТРОЙКА СОБЫТИЙ ==========
         function setupEventListeners() {
             // Текст
             elements.mainText.addEventListener('input', (e) => {
                 state.mainText = e.target.value || 'Ваш текст';
+                elements.mainTextLength.textContent = `${state.mainText.length}/30`;
                 updatePreview();
             });
             
             elements.subText.addEventListener('input', (e) => {
                 state.subText = e.target.value;
+                elements.subTextLength.textContent = `${state.subText.length}/40`;
                 updatePreview();
             });
-            
+
+            // Инициализация счетчиков
+            elements.mainTextLength.textContent = `${state.mainText.length}/30`;
+            elements.subTextLength.textContent = `${state.subText.length}/40`;
+
             // Цвета текста
             elements.colorOptions.forEach(option => {
-                if (option.dataset.color) {
-                    option.addEventListener('click', (e) => {
-                        elements.colorOptions.forEach(o => o.classList.remove('active'));
-                        e.target.classList.add('active');
-                        state.color = e.target.dataset.color;
-                        updatePreview();
-                        drawBackground();
-                    });
-                }
+                option.addEventListener('click', (e) => {
+                    elements.colorOptions.forEach(o => o.classList.remove('active'));
+                    e.target.classList.add('active');
+                    state.color = e.target.dataset.color;
+                    updatePreview();
+                    drawBackground();
+                });
             });
-            
-            // Цвета фона (ДОБАВЛЕНО)
+
+            // Цвета фона
             elements.bgColorOptions.forEach(option => {
                 option.addEventListener('click', (e) => {
                     elements.bgColorOptions.forEach(o => o.classList.remove('active'));
@@ -724,61 +1103,66 @@
                     drawBackground();
                 });
             });
-            
+
             // Эффекты
             elements.glowStrength.addEventListener('input', (e) => {
                 state.glowStrength = parseInt(e.target.value);
                 elements.glowValue.textContent = state.glowStrength;
                 updatePreview();
             });
-            
+
             elements.bgAnimation.addEventListener('change', (e) => {
                 state.bgAnimation = e.target.value;
+                state.particles = []; // Сбрасываем частицы при смене анимации
                 drawBackground();
             });
-            
-            // Кнопки
+
+            // Кнопки действий
             elements.downloadSimpleBtn.addEventListener('click', () => downloadImage(false));
             elements.downloadFullBtn.addEventListener('click', () => downloadImage(true));
             elements.downloadGifBtn.addEventListener('click', createGif);
             elements.copyCssBtn.addEventListener('click', copyCss);
             elements.randomBtn.addEventListener('click', randomDesign);
             elements.resetBtn.addEventListener('click', resetDesign);
-            
+
             // Подписка
             elements.subscriptionBtn.addEventListener('click', () => {
                 elements.subscriptionOverlay.style.display = 'flex';
             });
-            
+
             elements.closeSubscription.addEventListener('click', () => {
                 elements.subscriptionOverlay.style.display = 'none';
             });
-            
+
             elements.buySubscriptionBtn.addEventListener('click', () => {
                 window.open('https://yoomoney.ru/to/4100118454141760', '_blank');
-                showNotification('После оплаты отправьте скриншот на nuar.support@gmail.com');
+                showNotification('После оплаты отправьте скриншот на sauronaaaa@yandex.ru');
             });
-            
+
             // Адаптивность
             window.addEventListener('resize', () => {
                 setupCanvas();
                 drawBackground();
             });
         }
-        
-        // ========== ОБНОВЛЕНИЕ ПРЕДПРОСМОТРА ==========
+
+        // ========== ОБНОВЛЕНИЕ ПРЕДПРОСМОТРА - ИСПРАВЛЕНО СВЕЧЕНИЕ ==========
         function updatePreview() {
             elements.mainPreview.textContent = state.mainText;
             elements.subPreview.textContent = state.subText;
             
-            // Обновляем цвет и свечение
+            // УМЕНЬШЕНО СВЕЧЕНИЕ: было 0 0 30px, стало 0 0 10px
             elements.mainPreview.style.color = state.color;
             elements.subPreview.style.color = state.color;
-            elements.mainPreview.style.textShadow = `0 0 ${state.glowStrength}px ${state.color}`;
-            elements.subPreview.style.textShadow = `0 0 ${state.glowStrength * 0.7}px ${state.color}`;
+            elements.mainPreview.style.textShadow = `0 0 ${state.glowStrength}px ${state.color}, 0 0 ${state.glowStrength * 0.5}px rgba(255, 255, 255, 0.5)`;
+            elements.subPreview.style.textShadow = `0 0 ${state.glowStrength * 0.7}px ${state.color}, 0 0 ${state.glowStrength * 0.3}px rgba(255, 255, 255, 0.3)`;
+            
+            // Обновляем размер файла
+            const size = 300 + state.mainText.length * 5 + state.subText.length * 3;
+            elements.fileSize.textContent = `~${size} KB`;
         }
-        
-        // ========== РИСОВАНИЕ ФОНОВ ==========
+
+        // ========== РИСОВАНИЕ ФОНА ==========
         function drawBackground() {
             if (!elements.canvas || !elements.canvas.getContext) return;
             
@@ -811,13 +1195,12 @@
                     drawScan(ctx, width, height, time);
                     break;
                 default:
-                    // Нет фона
                     break;
             }
         }
-        
+
         function drawGrid(ctx, width, height, time) {
-            ctx.strokeStyle = 'rgba(0, 243, 255, 0.15)';
+            ctx.strokeStyle = 'rgba(0, 243, 255, 0.1)';
             ctx.lineWidth = 1;
             
             const offsetX = (time * 20) % 60;
@@ -837,7 +1220,7 @@
                 ctx.stroke();
             }
         }
-        
+
         function drawParticles(ctx, width, height, time) {
             // Создаем частицы если их нет
             if (state.particles.length === 0) {
@@ -848,7 +1231,8 @@
                         size: Math.random() * 3 + 1,
                         speedX: (Math.random() - 0.5) * 2,
                         speedY: (Math.random() - 0.5) * 2,
-                        color: Math.random() > 0.5 ? state.color : '#ff00ff'
+                        color: Math.random() > 0.5 ? state.color : '#ff00ff',
+                        alpha: Math.random() * 0.3 + 0.1
                     });
                 }
             }
@@ -862,28 +1246,29 @@
                 if (p.x < 0 || p.x > width) p.speedX *= -1;
                 if (p.y < 0 || p.y > height) p.speedY *= -1;
                 
+                // Рисуем частицу
                 ctx.fillStyle = p.color;
-                ctx.globalAlpha = 0.3;
+                ctx.globalAlpha = p.alpha;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                 ctx.fill();
             }
             ctx.globalAlpha = 1;
         }
-        
+
         function drawWaves(ctx, width, height, time) {
             ctx.strokeStyle = state.color;
-            ctx.lineWidth = 2;
-            ctx.globalAlpha = 0.3;
+            ctx.lineWidth = 1;
+            ctx.globalAlpha = 0.2;
             
-            for (let i = 0; i < 5; i++) {
-                const amplitude = 20 + i * 10;
-                const frequency = 0.02 + i * 0.008;
-                const offset = i * 50;
+            for (let i = 0; i < 3; i++) {
+                const amplitude = 15 + i * 8;
+                const frequency = 0.02 + i * 0.006;
+                const offset = i * 30;
                 
                 ctx.beginPath();
                 for (let x = 0; x < width; x++) {
-                    const y = height / 2 + amplitude * Math.sin(x * frequency + time * 2 + i) + offset;
+                    const y = height / 2 + amplitude * Math.sin(x * frequency + time * 1.5 + i) + offset;
                     if (x === 0) ctx.moveTo(x, y);
                     else ctx.lineTo(x, y);
                 }
@@ -891,50 +1276,50 @@
             }
             ctx.globalAlpha = 1;
         }
-        
+
         function drawCircuits(ctx, width, height, time) {
-            ctx.strokeStyle = 'rgba(0, 255, 157, 0.2)';
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'rgba(0, 255, 157, 0.15)';
+            ctx.lineWidth = 1;
             
-            for (let i = 0; i < 8; i++) {
+            for (let i = 0; i < 6; i++) {
                 const x = width * (0.2 + Math.sin(time + i) * 0.1 + 0.3);
                 const y = height * (0.2 + Math.cos(time + i) * 0.1 + 0.3);
-                const radius = 40 + Math.sin(time * 2 + i) * 20;
+                const radius = 30 + Math.sin(time * 1.5 + i) * 15;
                 
                 ctx.beginPath();
                 ctx.arc(x, y, radius, 0, Math.PI * 2);
                 ctx.stroke();
             }
         }
-        
+
         function drawScan(ctx, width, height, time) {
             ctx.fillStyle = 'rgba(0, 243, 255, 0.05)';
             for (let y = 0; y < height; y += 4) {
                 ctx.fillRect(0, y, width, 2);
             }
             
-            const scanY = (time * 100) % height;
-            ctx.fillStyle = 'rgba(0, 243, 255, 0.3)';
-            ctx.fillRect(0, scanY, width, 3);
+            const scanY = (time * 80) % height;
+            ctx.fillStyle = 'rgba(0, 243, 255, 0.2)';
+            ctx.fillRect(0, scanY, width, 2);
         }
-        
-        // ========== СКАЧИВАНИЕ ИЗОБРАЖЕНИЙ ==========
+
+        // ========== СКАЧИВАНИЕ ==========
         function downloadImage(withEffects) {
-            showNotification('Создаем изображение...');
+            showNotification('🖼️ Создаем изображение...');
             
             try {
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = 1920;
-                tempCanvas.height = 500;
+                tempCanvas.height = 600;
                 const ctx = tempCanvas.getContext('2d');
                 
                 if (!ctx) throw new Error('Не удалось создать canvas');
                 
-                // Фон с выбранным цветом
+                // Фон
                 ctx.fillStyle = state.backgroundColor;
                 ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
                 
-                // Фоновые эффекты
+                // Эффекты
                 if (withEffects) {
                     const time = Date.now() * 0.001;
                     switch(state.bgAnimation) {
@@ -953,34 +1338,37 @@
                     }
                 }
                 
-                // Текст
+                // Текст с нормальным свечением
                 ctx.font = 'bold 100px Orbitron';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
+                
+                // Основной текст с разумным свечением
                 ctx.fillStyle = state.color;
                 ctx.shadowColor = state.color;
-                ctx.shadowBlur = state.glowStrength;
+                ctx.shadowBlur = state.glowStrength * 3;
+                ctx.fillText(state.mainText, tempCanvas.width / 2, tempCanvas.height / 2 - 50);
                 
-                ctx.fillText(state.mainText, tempCanvas.width / 2, tempCanvas.height / 2 - 40);
-                ctx.shadowBlur = 0;
-                
+                // Второстепенный текст
                 if (state.subText) {
                     ctx.font = 'bold 40px Orbitron';
-                    ctx.fillStyle = state.color;
+                    ctx.shadowBlur = state.glowStrength * 2;
                     ctx.fillText(state.subText, tempCanvas.width / 2, tempCanvas.height / 2 + 60);
                 }
                 
-                // Водяной знак (если нет подписки)
+                ctx.shadowBlur = 0;
+                
+                // Водяной знак
                 if (!state.isSubscribed) {
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
                     ctx.font = 'bold 24px Orbitron';
                     ctx.textAlign = 'left';
-                    ctx.fillText('Создано в NUAR Studio', 50, tempCanvas.height - 30);
+                    ctx.fillText('Создано в NUAR Studio', 60, tempCanvas.height - 30);
                 }
                 
                 // Скачивание
                 const timestamp = new Date().toISOString().slice(0,19).replace(/:/g,'-');
-                const filename = `nuar-${withEffects ? 'full' : 'simple'}-${timestamp}.png`;
+                const filename = `nuar-studio-${withEffects ? 'pro' : 'basic'}-${timestamp}.png`;
                 
                 const link = document.createElement('a');
                 link.download = filename;
@@ -989,35 +1377,43 @@
                 link.click();
                 document.body.removeChild(link);
                 
-                showNotification('Изображение скачано!');
+                showNotification('✅ Изображение скачано!');
                 
             } catch (error) {
                 console.error('Ошибка:', error);
-                showNotification('Ошибка при создании изображения');
+                showNotification('❌ Ошибка при создании изображения');
             }
         }
-        
+
         // ========== GIF ==========
         function createGif() {
-            showNotification('GIF создается... Используйте PNG для лучшего качества');
+            if (!state.isSubscribed) {
+                showNotification('🎬 GIF доступен только в PRO версии');
+                elements.subscriptionOverlay.style.display = 'flex';
+                return;
+            }
             
-            // Альтернатива: открываем страницу с инструкциями
-            const win = window.open('', '_blank');
-            win.document.write(`
-                <html>
-                <head><title>Создание GIF</title></head>
-                <body>
-                    <h1>Как создать GIF из вашего дизайна:</h1>
-                    <p>1. Скачайте PNG с эффектами (кнопка "С ЭФФЕКТАМИ")</p>
-                    <p>2. Перейдите на <a href="https://ezgif.com/maker" target="_blank">EZGIF.com</a></p>
-                    <p>3. Загрузите изображение и создайте GIF</p>
-                    <p>4. Для анимированных GIF с пульсацией создайте несколько PNG с разной силой свечения</p>
-                </body>
-                </html>
-            `);
+            showNotification('⏳ Создаем анимированный GIF...');
+            
+            setTimeout(() => {
+                const instructions = `
+                    <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:10001;">
+                        <div style="background:var(--panel-bg);padding:3rem;border-radius:20px;border:2px solid var(--neon-blue);max-width:500px;">
+                            <h2 style="color:var(--neon-blue);">Анимированный GIF</h2>
+                            <p style="color:var(--text-dim);margin:1rem 0;">
+                                Для создания GIF с анимацией свечения скачайте несколько PNG с разной силой свечения и объедините их на <a href="https://ezgif.com/maker" target="_blank" style="color:var(--neon-cyan);">EZGIF.com</a>
+                            </p>
+                            <button onclick="this.parentElement.parentElement.remove()" style="background:var(--neon-blue);color:white;border:none;padding:1rem 2rem;border-radius:10px;cursor:pointer;margin-top:1rem;">
+                                Закрыть
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', instructions);
+            }, 1000);
         }
-        
-        // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
+
+        // ========== CSS ==========
         function copyCss() {
             const css = `.header-text {
     font-family: 'Orbitron', sans-serif;
@@ -1025,23 +1421,32 @@
     color: ${state.color};
     text-shadow: 0 0 ${state.glowStrength}px ${state.color};
     background: ${state.backgroundColor};
+}
+
+.sub-header {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 2rem;
+    color: ${state.color};
+    text-shadow: 0 0 ${state.glowStrength * 0.7}px ${state.color};
+    opacity: 0.9;
 }`;
             
             navigator.clipboard.writeText(css).then(() => {
-                showNotification('CSS скопирован!');
+                showNotification('📋 CSS скопирован в буфер!');
             });
         }
-        
+
+        // ========== РАНДОМ ДИЗАЙН ==========
         function randomDesign() {
-            const colors = ['#00f3ff', '#ff00ff', '#00ff9d', '#ff5500', '#9d00ff', '#ff009d'];
+            const colors = ['#00f3ff', '#ff00ff', '#00ff9d', '#ff5500', '#9d00ff', '#ffcc00', '#00ffff', '#ff0066', '#8a2be2'];
             const bgColors = ['#0a0a14', '#000000', '#111827', '#1a1a2e', '#16213e', '#0f3460'];
             const bgAnimations = ['none', 'grid', 'particles', 'waves', 'circuits', 'scan'];
-            const mainTexts = ['CYBERSTREAMER LIVE', 'NEON NIGHTS', 'SYNTHWAVE RADIO', 'GAME ZONE', 'TECH TALK'];
-            const subTexts = ['Прямой эфир 24/7', 'Играю в лучшие игры', 'Создаю цифровое искусство', 'Обсуждаю технологии'];
+            const mainTexts = ['CYBERSTREAMER LIVE', 'NEON NIGHTS', 'SYNTHWAVE RADIO', 'GAME ZONE', 'TECH TALK', 'FUTURE NOW'];
+            const subTexts = ['Прямой эфир 24/7', 'Играю в лучшие игры', 'Создаю цифровое искусство', 'Обсуждаю технологии будущего'];
             
             state.color = colors[Math.floor(Math.random() * colors.length)];
             state.backgroundColor = bgColors[Math.floor(Math.random() * bgColors.length)];
-            state.glowStrength = 15 + Math.floor(Math.random() * 35);
+            state.glowStrength = 8 + Math.floor(Math.random() * 15); // Ограничил свечение
             state.bgAnimation = bgAnimations[Math.floor(Math.random() * bgAnimations.length)];
             state.mainText = mainTexts[Math.floor(Math.random() * mainTexts.length)];
             state.subText = subTexts[Math.floor(Math.random() * subTexts.length)];
@@ -1058,19 +1463,22 @@
             elements.bgAnimation.value = state.bgAnimation;
             elements.mainText.value = state.mainText;
             elements.subText.value = state.subText;
+            elements.mainTextLength.textContent = `${state.mainText.length}/30`;
+            elements.subTextLength.textContent = `${state.subText.length}/40`;
             
             updatePreview();
             drawBackground();
             
-            showNotification('Случайный дизайн создан!');
+            showNotification('🎲 Случайный дизайн создан!');
         }
-        
+
+        // ========== СБРОС ==========
         function resetDesign() {
             state.mainText = 'CYBERSTREAMER LIVE';
             state.subText = 'Играет в Cyberpunk 2077';
             state.color = '#00f3ff';
             state.backgroundColor = '#0a0a14';
-            state.glowStrength = 25;
+            state.glowStrength = 15;
             state.bgAnimation = 'grid';
             
             elements.colorOptions.forEach(o => o.classList.remove('active'));
@@ -1079,44 +1487,172 @@
             elements.bgColorOptions.forEach(o => o.classList.remove('active'));
             document.querySelector(`[data-bg-color="#0a0a14"]`).classList.add('active');
             
-            elements.glowStrength.value = 25;
-            elements.glowValue.textContent = '25';
+            elements.glowStrength.value = 15;
+            elements.glowValue.textContent = '15';
             elements.bgAnimation.value = 'grid';
             elements.mainText.value = 'CYBERSTREAMER LIVE';
             elements.subText.value = 'Играет в Cyberpunk 2077';
+            elements.mainTextLength.textContent = `${state.mainText.length}/30`;
+            elements.subTextLength.textContent = `${state.subText.length}/40`;
             
             updatePreview();
             drawBackground();
             
-            showNotification('Дизайн сброшен');
+            showNotification('🔄 Дизайн сброшен к настройкам по умолчанию');
         }
-        
+
+        // ========== УВЕДОМЛЕНИЯ ==========
         function showNotification(message) {
-            // Удаляем старые уведомления
             document.querySelectorAll('.notification').forEach(n => n.remove());
             
             const notification = document.createElement('div');
             notification.className = 'notification';
-            notification.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+            notification.innerHTML = `
+                <i class="fas fa-bolt"></i>
+                <span>${message}</span>
+            `;
             document.body.appendChild(notification);
             
             setTimeout(() => {
-                notification.style.animation = 'slideOutRight 0.3s ease-in forwards';
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
                 setTimeout(() => notification.remove(), 300);
             }, 3000);
         }
-        
-        // ========== ЗАПУСК ==========
-        window.addEventListener('load', init);
-        
-        // Анимация фона
+
+        // ========== АНИМИРОВАННЫЙ ФОН ==========
+        function initAnimatedBackground() {
+            const canvas = document.getElementById('backgroundCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            const particles = [];
+            const particleCount = 30;
+            
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 2 + 1;
+                    this.speedX = Math.random() * 1 - 0.5;
+                    this.speedY = Math.random() * 1 - 0.5;
+                    this.color = `hsl(${Math.random() * 60 + 180}, 100%, 70%)`;
+                    this.alpha = Math.random() * 0.3 + 0.1;
+                }
+                
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    
+                    if (this.x > canvas.width) this.x = 0;
+                    else if (this.x < 0) this.x = canvas.width;
+                    if (this.y > canvas.height) this.y = 0;
+                    else if (this.y < 0) this.y = canvas.height;
+                }
+                
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.globalAlpha = this.alpha;
+                    ctx.fill();
+                }
+            }
+            
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+            
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.strokeStyle = 'rgba(0, 243, 255, 0.02)';
+                ctx.lineWidth = 1;
+                const gridSize = 50;
+                
+                for (let x = 0; x < canvas.width; x += gridSize) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                
+                for (let y = 0; y < canvas.height; y += gridSize) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+                
+                particles.forEach(particle => {
+                    particle.update();
+                    particle.draw();
+                });
+                
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+        }
+
+        // ========== ЧАСТИЦЫ ==========
+        function initParticles() {
+            const container = document.getElementById('particlesContainer');
+            const particleCount = 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = Math.random() * 3 + 1 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.background = `hsl(${Math.random() * 60 + 180}, 100%, 70%)`;
+                particle.style.borderRadius = '50%';
+                particle.style.boxShadow = '0 0 5px currentColor';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.opacity = Math.random() * 0.3 + 0.1;
+                
+                const duration = Math.random() * 20 + 10;
+                particle.style.animation = `float ${duration}s infinite linear`;
+                
+                container.appendChild(particle);
+            }
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes float {
+                    0% {
+                        transform: translate(0, 0) rotate(0deg);
+                        opacity: ${Math.random() * 0.2 + 0.1};
+                    }
+                    50% {
+                        transform: translate(${Math.random() * 50 - 25}px, ${Math.random() * 50 - 25}px) rotate(180deg);
+                        opacity: ${Math.random() * 0.4 + 0.2};
+                    }
+                    100% {
+                        transform: translate(0, 0) rotate(360deg);
+                        opacity: ${Math.random() * 0.2 + 0.1};
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // ========== ЗАПУСК АНИМАЦИИ ==========
         function animate() {
             if (state.bgAnimation !== 'none') {
                 drawBackground();
             }
             requestAnimationFrame(animate);
         }
-        
+
         // Запускаем анимацию
         animate();
     </script>
