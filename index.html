@@ -361,6 +361,7 @@
             font-size: 3.5rem;
             font-weight: bold;
             margin-bottom: 0.5rem;
+            animation: textGlow 2s infinite;
         }
 
         .sub-preview {
@@ -371,6 +372,11 @@
 
         .sub-preview.hidden {
             display: none;
+        }
+
+        @keyframes textGlow {
+            0%, 100% { text-shadow: 0 0 20px currentColor; }
+            50% { text-shadow: 0 0 40px currentColor; }
         }
 
         /* КНОПКИ ДЕЙСТВИЙ */
@@ -491,6 +497,44 @@
             to { transform: translateX(100%); opacity: 0; }
         }
 
+        /* ПРОГРЕСС БАР */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #00f3ff;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00f3ff, #ff00ff);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            color: #00f3ff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+        }
+
         /* АДАПТИВНОСТЬ */
         @media (max-width: 1400px) {
             .main-container { grid-template-columns: 300px 1fr; }
@@ -513,6 +557,17 @@
 <body>
     <!-- ФОН -->
     <div class="cyber-bg"></div>
+
+    <!-- ПРОГРЕСС БАР -->
+    <div class="progress-container" id="progressContainer">
+        <div class="progress-text" id="progressText">Создаем GIF... 0%</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div style="color: #a0b8d0; font-size: 0.9rem; text-align: center; max-width: 300px;">
+            Подождите 5-10 секунд<br>Создаем анимацию с вашими настройками
+        </div>
+    </div>
 
     <!-- НАВИГАЦИЯ -->
     <nav class="navbar">
@@ -607,15 +662,18 @@
                     <label>Сила свечения: <span id="glowValue">25</span>px</label>
                     <input type="range" id="glowStrength" min="5" max="60" value="25">
                 </div>
-                <!-- УПРОЩЕННЫЕ ФОНЫ -->
+                <!-- АНИМИРОВАННЫЕ ФОНЫ -->
                 <div class="control-item">
-                    <label>Фон:</label>
+                    <label>Анимированный фон:</label>
                     <select id="bgAnimation">
                         <option value="none">Нет</option>
-                        <option value="grid" selected>Сетка</option>
-                        <option value="circuits">Схемы</option>
-                        <option value="dots">Точки</option>
-                        <option value="waves">Волны</option>
+                        <option value="grid" selected>Движущаяся сетка</option>
+                        <option value="particles">Летающие частицы</option>
+                        <option value="waves">Неоновые волны</option>
+                        <option value="circuits">Электронные схемы</option>
+                        <option value="scan">Сканирующий луч</option>
+                        <option value="hexagon">Шестиугольники</option>
+                        <option value="binary">Бинарный дождь</option>
                     </select>
                 </div>
             </div>
@@ -672,7 +730,7 @@
                     <button class="action-btn btn-success" id="downloadFullBtn">
                         <i class="fas fa-image"></i> С ЭФФЕКТАМИ
                     </button>
-                    <!-- КНОПКА ДЛЯ ПРОСТОГО GIF -->
+                    <!-- КНОПКА ДЛЯ НАСТОЯЩЕГО GIF -->
                     <button class="action-btn btn-warning" id="downloadGifBtn">
                         <i class="fas fa-film"></i> СКАЧАТЬ GIF
                     </button>
@@ -814,7 +872,10 @@
             randomBtn: document.getElementById('randomBtn'),
             resetBtn: document.getElementById('resetBtn'),
             exportJsonBtn: document.getElementById('exportJsonBtn'),
-            fileSize: document.getElementById('fileSize')
+            fileSize: document.getElementById('fileSize'),
+            progressContainer: document.getElementById('progressContainer'),
+            progressText: document.getElementById('progressText'),
+            progressFill: document.getElementById('progressFill')
         };
 
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
@@ -832,7 +893,7 @@
             if (container && elements.canvas) {
                 elements.canvas.width = container.clientWidth;
                 elements.canvas.height = container.clientHeight;
-                renderBackground(); // Рендерим фон сразу
+                drawBackground(); // Рисуем фон сразу
             }
         }
 
@@ -861,7 +922,7 @@
                     e.target.classList.add('active');
                     state.color = e.target.dataset.color;
                     updatePreview();
-                    renderBackground();
+                    drawBackground();
                 });
             });
 
@@ -879,7 +940,7 @@
             
             elements.bgAnimation.addEventListener('change', (e) => {
                 state.bgAnimation = e.target.value;
-                renderBackground();
+                drawBackground();
             });
             
             elements.stickerSelect.addEventListener('change', (e) => {
@@ -904,7 +965,7 @@
             // Кнопки
             elements.downloadSimpleBtn.addEventListener('click', () => downloadImage(false));
             elements.downloadFullBtn.addEventListener('click', () => downloadImage(true));
-            elements.downloadGifBtn.addEventListener('click', createSimpleGif);
+            elements.downloadGifBtn.addEventListener('click', createRealAnimatedGif);
             elements.copyCssBtn.addEventListener('click', copyCss);
             elements.shareBtn.addEventListener('click', shareDesign);
             elements.randomBtn.addEventListener('click', randomDesign);
@@ -914,7 +975,7 @@
             // Адаптивность
             window.addEventListener('resize', () => {
                 setupCanvas();
-                renderBackground();
+                drawBackground();
             });
         }
 
@@ -971,8 +1032,8 @@
             }
         }
 
-        // ========== РЕНДЕРИНГ ФОНА ==========
-        function renderBackground() {
+        // ========== РИСОВАНИЕ ФОНОВ ==========
+        function drawBackground() {
             if (!elements.canvas || !elements.canvas.getContext) return;
             
             const ctx = elements.canvas.getContext('2d');
@@ -980,151 +1041,183 @@
             
             const width = elements.canvas.width;
             const height = elements.canvas.height;
+            const time = Date.now() * 0.001;
             
-            // Очищаем канвас
-            ctx.clearRect(0, 0, width, height);
-            
-            // Рисуем выбранный фон
-            switch(state.bgAnimation) {
-                case 'grid':
-                    drawGrid(ctx, width, height);
-                    break;
-                case 'circuits':
-                    drawCircuits(ctx, width, height);
-                    break;
-                case 'dots':
-                    drawDots(ctx, width, height);
-                    break;
-                case 'waves':
-                    drawWaves(ctx, width, height);
-                    break;
-                default:
-                    // Для 'none' просто черный фон
-                    ctx.fillStyle = '#0a0a14';
-                    ctx.fillRect(0, 0, width, height);
-            }
-        }
-
-        function drawGrid(ctx, width, height) {
             // Черный фон
             ctx.fillStyle = '#0a0a14';
             ctx.fillRect(0, 0, width, height);
             
-            // Сетка
+            // Рисуем выбранный фон
+            switch(state.bgAnimation) {
+                case 'grid':
+                    drawGrid(ctx, width, height, time);
+                    break;
+                case 'particles':
+                    drawParticles(ctx, width, height, time);
+                    break;
+                case 'waves':
+                    drawWaves(ctx, width, height, time);
+                    break;
+                case 'circuits':
+                    drawCircuits(ctx, width, height, time);
+                    break;
+                case 'scan':
+                    drawScan(ctx, width, height, time);
+                    break;
+                case 'hexagon':
+                    drawHexagon(ctx, width, height, time);
+                    break;
+                case 'binary':
+                    drawBinary(ctx, width, height, time);
+                    break;
+            }
+        }
+
+        function drawGrid(ctx, width, height, time) {
             ctx.strokeStyle = 'rgba(0, 243, 255, 0.15)';
             ctx.lineWidth = 1;
             
-            // Вертикальные линии
-            for (let x = 0; x < width; x += 50) {
+            // Движущаяся сетка
+            const offsetX = (time * 20) % 60;
+            const offsetY = (time * 20) % 60;
+            
+            for (let x = -offsetX; x < width; x += 60) {
                 ctx.beginPath();
                 ctx.moveTo(x, 0);
                 ctx.lineTo(x, height);
                 ctx.stroke();
             }
             
-            // Горизонтальные линии
-            for (let y = 0; y < height; y += 50) {
+            for (let y = -offsetY; y < height; y += 60) {
                 ctx.beginPath();
                 ctx.moveTo(0, y);
                 ctx.lineTo(width, y);
                 ctx.stroke();
             }
-            
-            // Диагонали
-            ctx.strokeStyle = 'rgba(255, 0, 255, 0.1)';
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(width, height);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(width, 0);
-            ctx.lineTo(0, height);
-            ctx.stroke();
         }
 
-        function drawCircuits(ctx, width, height) {
-            // Черный фон
-            ctx.fillStyle = '#0a0a14';
-            ctx.fillRect(0, 0, width, height);
+        function drawParticles(ctx, width, height, time) {
+            // Создаем частицы если их нет
+            if (state.particles.length === 0) {
+                for (let i = 0; i < 50; i++) {
+                    state.particles.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        size: Math.random() * 3 + 1,
+                        speedX: (Math.random() - 0.5) * 2,
+                        speedY: (Math.random() - 0.5) * 2,
+                        color: Math.random() > 0.5 ? state.color : getComplementaryColor(state.color),
+                        alpha: Math.random() * 0.5 + 0.2
+                    });
+                }
+            }
             
-            // Схемы
+            // Обновляем и рисуем частицы
+            for (const p of state.particles) {
+                p.x += p.speedX;
+                p.y += p.speedY;
+                
+                // Отскок от границ
+                if (p.x < 0 || p.x > width) p.speedX *= -1;
+                if (p.y < 0 || p.y > height) p.speedY *= -1;
+                
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.alpha;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawWaves(ctx, width, height, time) {
+            ctx.strokeStyle = state.color;
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.3;
+            
+            // Анимированные волны
+            for (let i = 0; i < 5; i++) {
+                const amplitude = 20 + i * 10;
+                const frequency = 0.02 + i * 0.008;
+                const offset = i * 50;
+                
+                ctx.beginPath();
+                for (let x = 0; x < width; x++) {
+                    const y = height / 2 + amplitude * Math.sin(x * frequency + time * 2 + i) + offset;
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawCircuits(ctx, width, height, time) {
             ctx.strokeStyle = 'rgba(0, 255, 157, 0.2)';
             ctx.lineWidth = 2;
             
-            // Круги
-            for (let i = 0; i < 5; i++) {
-                const x = width * (0.2 + Math.random() * 0.6);
-                const y = height * (0.2 + Math.random() * 0.6);
-                const radius = 40 + Math.random() * 80;
+            // Анимированные круги
+            for (let i = 0; i < 8; i++) {
+                const x = width * (0.2 + Math.sin(time + i) * 0.1 + 0.3);
+                const y = height * (0.2 + Math.cos(time + i) * 0.1 + 0.3);
+                const radius = 40 + Math.sin(time * 2 + i) * 20;
                 
                 ctx.beginPath();
                 ctx.arc(x, y, radius, 0, Math.PI * 2);
                 ctx.stroke();
             }
+        }
+
+        function drawScan(ctx, width, height, time) {
+            // Сканирующие линии
+            ctx.fillStyle = 'rgba(0, 243, 255, 0.05)';
+            for (let y = 0; y < height; y += 4) {
+                ctx.fillRect(0, y, width, 2);
+            }
             
-            // Линии
+            // Сканирующий луч
+            const scanY = (time * 100) % height;
+            ctx.fillStyle = 'rgba(0, 243, 255, 0.3)';
+            ctx.fillRect(0, scanY, width, 3);
+        }
+
+        function drawHexagon(ctx, width, height, time) {
             ctx.strokeStyle = 'rgba(255, 0, 255, 0.15)';
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 1.5;
             
-            for (let i = 0; i < 3; i++) {
-                const x1 = width * 0.2;
-                const y1 = height * (0.3 + i * 0.2);
-                const x2 = width * 0.8;
-                const y2 = height * (0.3 + i * 0.2);
-                
-                ctx.beginPath();
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x2, y2);
-                ctx.stroke();
-            }
-        }
-
-        function drawDots(ctx, width, height) {
-            // Черный фон
-            ctx.fillStyle = '#0a0a14';
-            ctx.fillRect(0, 0, width, height);
+            const size = 40;
+            const offsetX = (time * 10) % (size * 1.5);
+            const offsetY = (time * 10) % (size * 1.5);
             
-            // Точки
-            ctx.fillStyle = state.color;
-            ctx.globalAlpha = 0.3;
-            
-            const spacing = 30;
-            for (let x = spacing; x < width; x += spacing) {
-                for (let y = spacing; y < height; y += spacing) {
-                    const size = 2 + Math.random() * 3;
+            for (let y = -size; y < height + size; y += size * 1.5) {
+                for (let x = -size; x < width + size; x += size * 1.5) {
+                    const hexX = x + offsetX;
+                    const hexY = y + offsetY;
+                    
                     ctx.beginPath();
-                    ctx.arc(x, y, size, 0, Math.PI * 2);
-                    ctx.fill();
+                    for (let i = 0; i < 6; i++) {
+                        const angle = Math.PI / 3 * i;
+                        const px = hexX + size * Math.cos(angle);
+                        const py = hexY + size * Math.sin(angle);
+                        if (i === 0) ctx.moveTo(px, py);
+                        else ctx.lineTo(px, py);
+                    }
+                    ctx.closePath();
+                    ctx.stroke();
                 }
             }
-            ctx.globalAlpha = 1;
         }
 
-        function drawWaves(ctx, width, height) {
-            // Черный фон
-            ctx.fillStyle = '#0a0a14';
-            ctx.fillRect(0, 0, width, height);
-            
-            // Волны
-            ctx.strokeStyle = state.color;
-            ctx.lineWidth = 2;
+        function drawBinary(ctx, width, height, time) {
+            ctx.fillStyle = state.color;
+            ctx.font = '16px JetBrains Mono';
             ctx.globalAlpha = 0.3;
             
-            const time = Date.now() * 0.001;
-            
-            for (let i = 0; i < 3; i++) {
-                const amplitude = 20 + i * 15;
-                const frequency = 0.02 + i * 0.01;
-                const offsetY = i * 40;
-                
-                ctx.beginPath();
-                for (let x = 0; x < width; x++) {
-                    const y = height / 2 + amplitude * Math.sin(x * frequency + time) + offsetY;
-                    if (x === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
-                }
-                ctx.stroke();
+            // Бинарный дождь
+            for (let i = 0; i < 20; i++) {
+                const x = 50 + i * 70;
+                const y = (time * 50 + i * 50) % (height + 100) - 50;
+                ctx.fillText(Math.random() > 0.5 ? '01010101' : '10101010', x, y);
             }
             ctx.globalAlpha = 1;
         }
@@ -1174,7 +1267,7 @@
                     color: '#ff00ff',
                     glowType: 'neon-rainbow',
                     stickerType: 'music',
-                    bgAnimation: 'dots'
+                    bgAnimation: 'particles'
                 },
                 creative: {
                     mainText: 'DIGITAL ART ZONE',
@@ -1182,7 +1275,7 @@
                     color: '#00ff9d',
                     glowType: 'double',
                     stickerType: 'cyber',
-                    bgAnimation: 'circuits'
+                    bgAnimation: 'waves'
                 },
                 tech: {
                     mainText: 'TECH TALK LIVE',
@@ -1190,7 +1283,7 @@
                     color: '#ff5500',
                     glowType: 'glitch',
                     stickerType: 'tech',
-                    bgAnimation: 'grid'
+                    bgAnimation: 'circuits'
                 },
                 podcast: {
                     mainText: 'CYBERPUNK PODCAST',
@@ -1206,7 +1299,7 @@
                     color: '#00ffea',
                     glowType: 'pulse',
                     stickerType: 'tech',
-                    bgAnimation: 'waves'
+                    bgAnimation: 'binary'
                 }
             };
             
@@ -1215,6 +1308,15 @@
             
             Object.assign(state, t);
             
+            // Обновляем UI
+            updateUIFromState();
+            drawBackground();
+            updatePreview();
+            
+            showNotification(`Шаблон "${template}" применен!`, 'success');
+        }
+
+        function updateUIFromState() {
             if (elements.mainText) elements.mainText.value = state.mainText;
             if (elements.subText) elements.subText.value = state.subText;
             if (elements.glowType) elements.glowType.value = state.glowType;
@@ -1224,11 +1326,10 @@
             }
             if (elements.bgAnimation) elements.bgAnimation.value = state.bgAnimation;
             if (elements.stickerSelect) elements.stickerSelect.value = state.stickerType;
-            if (elements.hideSubText) {
-                elements.hideSubText.checked = true;
-                state.showSubText = true;
-            }
+            if (elements.qrUrl) elements.qrUrl.value = state.qrUrl;
+            if (elements.hideSubText) elements.hideSubText.checked = state.showSubText;
             
+            // Цвет
             if (elements.colorOptions) {
                 elements.colorOptions.forEach(opt => {
                     opt.classList.remove('active');
@@ -1238,10 +1339,15 @@
                 });
             }
             
-            renderBackground();
-            updatePreview();
-            
-            showNotification(`Шаблон "${template}" применен!`, 'success');
+            // Шаблон
+            if (elements.templateCards) {
+                elements.templateCards.forEach(card => {
+                    card.classList.remove('active');
+                    if (card.dataset.template === state.template) {
+                        card.classList.add('active');
+                    }
+                });
+            }
         }
 
         // ========== СКАЧИВАНИЕ PNG ==========
@@ -1256,29 +1362,38 @@
                 
                 if (!ctx) throw new Error('Не удалось получить контекст canvas');
                 
-                // Всегда черный фон для скачивания
+                // Черный фон
                 ctx.fillStyle = '#0a0a14';
                 ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
                 
-                if (withEffects) {
-                    // Рисуем фон если выбран
-                    if (state.bgAnimation !== 'none') {
-                        switch(state.bgAnimation) {
-                            case 'grid':
-                                drawGrid(ctx, tempCanvas.width, tempCanvas.height);
-                                break;
-                            case 'circuits':
-                                drawCircuits(ctx, tempCanvas.width, tempCanvas.height);
-                                break;
-                            case 'dots':
-                                drawDots(ctx, tempCanvas.width, tempCanvas.height);
-                                break;
-                            case 'waves':
-                                drawWaves(ctx, tempCanvas.width, tempCanvas.height);
-                                break;
-                        }
+                // Рисуем выбранный фон
+                if (withEffects && state.bgAnimation !== 'none') {
+                    const time = Date.now() * 0.001;
+                    
+                    switch(state.bgAnimation) {
+                        case 'grid':
+                            drawGrid(ctx, tempCanvas.width, tempCanvas.height, time);
+                            break;
+                        case 'particles':
+                            drawParticles(ctx, tempCanvas.width, tempCanvas.height, time);
+                            break;
+                        case 'waves':
+                            drawWaves(ctx, tempCanvas.width, tempCanvas.height, time);
+                            break;
+                        case 'circuits':
+                            drawCircuits(ctx, tempCanvas.width, tempCanvas.height, time);
+                            break;
+                        case 'scan':
+                            drawScan(ctx, tempCanvas.width, tempCanvas.height, time);
+                            break;
+                        case 'hexagon':
+                            drawHexagon(ctx, tempCanvas.width, tempCanvas.height, time);
+                            break;
+                        case 'binary':
+                            drawBinary(ctx, tempCanvas.width, tempCanvas.height, time);
+                            break;
                     }
-                } else {
+                } else if (!withEffects) {
                     // Простая сетка для базовой версии
                     ctx.strokeStyle = 'rgba(0, 243, 255, 0.1)';
                     ctx.lineWidth = 1;
@@ -1324,6 +1439,18 @@
                     ctx.fillText(emojis[1], tempCanvas.width * 0.85, tempCanvas.height * 0.7);
                 }
                 
+                // QR код если есть
+                if (withEffects && state.qrUrl) {
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(tempCanvas.width - 140, tempCanvas.height - 140, 120, 120);
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(tempCanvas.width - 135, tempCanvas.height - 135, 110, 110);
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('QR', tempCanvas.width - 80, tempCanvas.height - 70);
+                }
+                
                 // Водяной знак
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
                 ctx.font = 'bold 24px Orbitron';
@@ -1348,81 +1475,155 @@
             }
         }
 
-        // ========== ПРОСТОЙ GIF (БЕЗ БИБЛИОТЕК) ==========
-        function createSimpleGif() {
-            showNotification('Создаем анимированное изображение...', 'info');
+        // ========== СОЗДАНИЕ НАСТОЯЩЕГО GIF ==========
+        async function createRealAnimatedGif() {
+            if (typeof GIF === 'undefined') {
+                showNotification('Ошибка: библиотека GIF не загружена', 'error');
+                return;
+            }
+            
+            showNotification('Начинаем создание GIF...', 'info');
+            elements.progressContainer.style.display = 'flex';
+            elements.progressFill.style.width = '0%';
             
             try {
-                // Создаем один кадр с пульсацией
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = 800;
-                tempCanvas.height = 300;
-                const ctx = tempCanvas.getContext('2d');
+                const gif = new GIF({
+                    workers: 2,
+                    quality: 10,
+                    width: 800,
+                    height: 300
+                });
                 
-                if (!ctx) throw new Error('Не удалось получить контекст canvas');
+                const frames = 12; // 12 кадров для GIF
+                let framesAdded = 0;
                 
-                // Черный фон
-                ctx.fillStyle = '#0a0a14';
-                ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-                
-                // Добавляем сетку
-                ctx.strokeStyle = 'rgba(0, 243, 255, 0.1)';
-                ctx.lineWidth = 1;
-                
-                for (let x = 0; x < tempCanvas.width; x += 50) {
-                    ctx.beginPath();
-                    ctx.moveTo(x, 0);
-                    ctx.lineTo(x, tempCanvas.height);
-                    ctx.stroke();
-                }
-                
-                for (let y = 0; y < tempCanvas.height; y += 50) {
-                    ctx.beginPath();
-                    ctx.moveTo(0, y);
-                    ctx.lineTo(tempCanvas.width, y);
-                    ctx.stroke();
-                }
-                
-                // Текст с максимальным свечением для анимации
-                const maxGlow = state.glowStrength * 1.5;
-                
-                ctx.font = 'bold 60px Orbitron';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = state.color;
-                ctx.shadowColor = state.color;
-                ctx.shadowBlur = maxGlow;
-                ctx.fillText(state.mainText, tempCanvas.width / 2, tempCanvas.height / 2 - 20);
-                
-                if (state.showSubText && state.subText) {
-                    ctx.font = 'bold 30px Orbitron';
+                for (let i = 0; i < frames; i++) {
+                    // Обновляем прогресс
+                    const progress = Math.round((i / frames) * 100);
+                    elements.progressFill.style.width = `${progress}%`;
+                    elements.progressText.textContent = `Создаем GIF... ${progress}%`;
+                    
+                    // Создаем канвас для кадра
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 800;
+                    canvas.height = 300;
+                    const ctx = canvas.getContext('2d');
+                    
+                    if (!ctx) continue;
+                    
+                    // Черный фон
+                    ctx.fillStyle = '#0a0a14';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Время для анимации
+                    const time = i * 0.2;
+                    
+                    // Рисуем выбранный анимированный фон
+                    switch(state.bgAnimation) {
+                        case 'grid':
+                            drawGrid(ctx, canvas.width, canvas.height, time);
+                            break;
+                        case 'particles':
+                            drawParticles(ctx, canvas.width, canvas.height, time);
+                            break;
+                        case 'waves':
+                            drawWaves(ctx, canvas.width, canvas.height, time);
+                            break;
+                        case 'circuits':
+                            drawCircuits(ctx, canvas.width, canvas.height, time);
+                            break;
+                        case 'scan':
+                            drawScan(ctx, canvas.width, canvas.height, time);
+                            break;
+                        case 'hexagon':
+                            drawHexagon(ctx, canvas.width, canvas.height, time);
+                            break;
+                        case 'binary':
+                            drawBinary(ctx, canvas.width, canvas.height, time);
+                            break;
+                        case 'none':
+                            // Нет фона
+                            break;
+                    }
+                    
+                    // Пульсирующий текст для анимации
+                    const pulse = 0.8 + Math.sin(i * 0.5) * 0.2;
+                    const glow = state.glowStrength * pulse;
+                    
+                    ctx.font = 'bold 60px Orbitron';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
                     ctx.fillStyle = state.color;
-                    ctx.fillText(state.subText, tempCanvas.width / 2, tempCanvas.height / 2 + 40);
+                    ctx.shadowColor = state.color;
+                    ctx.shadowBlur = glow;
+                    
+                    // Для радужного эффекта
+                    if (state.glowType === 'neon-rainbow') {
+                        const hue = (i * 30) % 360;
+                        ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+                        ctx.shadowColor = `hsl(${hue}, 100%, 50%)`;
+                    }
+                    
+                    ctx.fillText(state.mainText, canvas.width / 2, canvas.height / 2 - 20);
+                    
+                    if (state.showSubText && state.subText) {
+                        ctx.font = 'bold 30px Orbitron';
+                        ctx.fillStyle = state.color;
+                        ctx.fillText(state.subText, canvas.width / 2, canvas.height / 2 + 40);
+                    }
+                    
+                    ctx.shadowBlur = 0;
+                    
+                    // Стикеры
+                    if (state.stickerType !== 'none') {
+                        const emojis = getStickerEmojis();
+                        ctx.font = '60px Arial';
+                        ctx.fillStyle = state.color;
+                        ctx.fillText(emojis[0], canvas.width * 0.15, canvas.height * 0.3);
+                        ctx.fillStyle = getComplementaryColor(state.color);
+                        ctx.fillText(emojis[1], canvas.width * 0.85, canvas.height * 0.7);
+                    }
+                    
+                    // Водяной знак
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.font = 'bold 16px Orbitron';
+                    ctx.textAlign = 'left';
+                    ctx.fillText('NUAR Studio', 20, canvas.height - 20);
+                    
+                    // Добавляем кадр в GIF
+                    gif.addFrame(ctx, {delay: 100});
+                    framesAdded++;
+                    
+                    // Даем браузеру отдохнуть
+                    await new Promise(resolve => setTimeout(resolve, 50));
                 }
                 
-                ctx.shadowBlur = 0;
+                // Рендерим GIF
+                gif.on('finished', function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = `nuar-animation-${Date.now()}.gif`;
+                    link.href = url;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                    
+                    elements.progressFill.style.width = '100%';
+                    elements.progressText.textContent = 'GIF создан!';
+                    
+                    setTimeout(() => {
+                        elements.progressContainer.style.display = 'none';
+                        showNotification('Анимированный GIF успешно создан!', 'success');
+                    }, 1000);
+                });
                 
-                // Водяной знак
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.font = 'bold 20px Orbitron';
-                ctx.textAlign = 'left';
-                ctx.fillText('Анимированная версия - NUAR Studio', 20, tempCanvas.height - 20);
-                
-                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-                const filename = `nuar-animated-${timestamp}.png`;
-                
-                const link = document.createElement('a');
-                link.download = filename;
-                link.href = tempCanvas.toDataURL('image/png');
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                showNotification('Анимированное изображение скачано! Добавьте эффекты в редакторе.', 'success');
+                gif.render();
                 
             } catch (error) {
                 console.error('Ошибка при создании GIF:', error);
-                showNotification('Ошибка при создании изображения', 'error');
+                elements.progressContainer.style.display = 'none';
+                showNotification('Ошибка при создании GIF', 'error');
             }
         }
 
@@ -1489,9 +1690,9 @@
             if (!state.lastRenderTime) state.lastRenderTime = currentTime;
             const deltaTime = currentTime - state.lastRenderTime;
             
-            // Обновляем только анимированные фоны
-            if (state.bgAnimation === 'waves' && elements.canvas) {
-                renderBackground();
+            // Перерисовываем фон если он анимированный
+            if (state.bgAnimation !== 'none' && elements.canvas) {
+                drawBackground();
             }
             
             state.lastRenderTime = currentTime;
@@ -1503,7 +1704,7 @@
             const colors = ['#00f3ff', '#ff00ff', '#00ff9d', '#ff5500', '#9d00ff', '#00ffea', '#ffcc00', '#ff3366'];
             const templates = ['gamer', 'music', 'creative', 'tech', 'podcast', 'education'];
             const glowTypes = ['simple', 'double', 'pulse', 'neon-rainbow', 'glitch'];
-            const bgAnimations = ['none', 'grid', 'circuits', 'dots', 'waves'];
+            const bgAnimations = ['none', 'grid', 'particles', 'waves', 'circuits', 'scan', 'hexagon', 'binary'];
             
             const mainTexts = [
                 'CYBERSTREAMER LIVE',
@@ -1511,9 +1712,7 @@
                 'DIGITAL DREAMS',
                 'SYNTHWAVE RADIO',
                 'GAME ZONE',
-                'TECH TALK',
-                'CREATIVE FLOW',
-                'FUTURE VIBES'
+                'TECH TALK'
             ];
             
             const subTexts = [
@@ -1522,9 +1721,7 @@
                 'Создаю цифровое искусство',
                 'Обсуждаю технологии',
                 'Учу программированию',
-                'Музыка для души',
-                'Рисую в реальном времени',
-                'Разбираю новинки'
+                'Музыка для души'
             ];
             
             state.color = colors[Math.floor(Math.random() * colors.length)];
@@ -1537,9 +1734,8 @@
             state.stickerType = Math.random() > 0.3 ? ['gaming', 'music', 'tech', 'cyber'][Math.floor(Math.random() * 4)] : 'none';
             state.showSubText = Math.random() > 0.2;
             
-            // Обновляем UI
             updateUIFromState();
-            renderBackground();
+            drawBackground();
             updatePreview();
             
             showNotification('Случайный дизайн создан!', 'success');
@@ -1559,7 +1755,7 @@
             state.showSubText = true;
             
             updateUIFromState();
-            renderBackground();
+            drawBackground();
             updatePreview();
             
             showNotification('Дизайн сброшен до начальных настроек', 'info');
@@ -1592,40 +1788,6 @@
             document.body.removeChild(link);
             
             showNotification('Настройки экспортированы в JSON файл', 'success');
-        }
-
-        function updateUIFromState() {
-            if (elements.mainText) elements.mainText.value = state.mainText;
-            if (elements.subText) elements.subText.value = state.subText;
-            if (elements.glowType) elements.glowType.value = state.glowType;
-            if (elements.glowStrength) {
-                elements.glowStrength.value = state.glowStrength;
-                if (elements.glowValue) elements.glowValue.textContent = state.glowStrength;
-            }
-            if (elements.bgAnimation) elements.bgAnimation.value = state.bgAnimation;
-            if (elements.stickerSelect) elements.stickerSelect.value = state.stickerType;
-            if (elements.qrUrl) elements.qrUrl.value = state.qrUrl;
-            if (elements.hideSubText) {
-                elements.hideSubText.checked = state.showSubText;
-            }
-            
-            if (elements.colorOptions) {
-                elements.colorOptions.forEach(opt => {
-                    opt.classList.remove('active');
-                    if (opt.dataset.color === state.color) {
-                        opt.classList.add('active');
-                    }
-                });
-            }
-            
-            if (elements.templateCards) {
-                elements.templateCards.forEach(card => {
-                    card.classList.remove('active');
-                    if (card.dataset.template === state.template) {
-                        card.classList.add('active');
-                    }
-                });
-            }
         }
 
         // ========== КОПИРОВАНИЕ CSS ==========
@@ -1663,11 +1825,9 @@
     opacity: 0.9;
 }`;
 
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(css).then(() => {
-                    showNotification('CSS код скопирован в буфер обмена!', 'success');
-                });
-            } else {
+            navigator.clipboard.writeText(css).then(() => {
+                showNotification('CSS код скопирован в буфер обмена!', 'success');
+            }).catch(() => {
                 const textArea = document.createElement('textarea');
                 textArea.value = css;
                 document.body.appendChild(textArea);
@@ -1675,7 +1835,7 @@
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
                 showNotification('CSS код скопирован!', 'success');
-            }
+            });
         }
 
         // ========== ПОДЕЛИТЬСЯ ДИЗАЙНОМ ==========
@@ -1708,11 +1868,9 @@
             const encoded = btoa(JSON.stringify(designConfig));
             const link = `${window.location.origin}${window.location.pathname}?design=${encoded}`;
             
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(link).then(() => {
-                    showNotification('Ссылка на дизайн скопирована в буфер!', 'success');
-                });
-            }
+            navigator.clipboard.writeText(link).then(() => {
+                showNotification('Ссылка на дизайн скопирована в буфер!', 'success');
+            });
         }
 
         // ========== ЗАГРУЗКА ==========
