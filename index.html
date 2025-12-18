@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NUAR Studio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600&family=Rajdhani:wght@400;500;600;700&family=Audiowide&family=Exo+2:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- ИКОНКА ВКЛАДКИ -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><defs><linearGradient id=%22brainGrad%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22><stop offset=%220%25%22 style=%22stop-color:%2300f3ff;stop-opacity:1%22/><stop offset=%22100%25%22 style=%22stop-color:%23ff00ff;stop-opacity:1%22/></linearGradient></defs><path d=%22M50,20 Q70,25 75,40 Q80,55 70,70 Q60,85 50,80 Q40,85 30,70 Q20,55 25,40 Q30,25 50,20Z%22 fill=%22url(%23brainGrad)%22 stroke=%22%2300f3ff%22 stroke-width=%222%22/><circle cx=%2250%22 cy=%2240%22 r=%225%22 fill=%22white%22/><path d=%22M40,55 Q50,60 60,55%22 stroke=%22%23ff00ff%22 stroke-width=%222%22 fill=%22none%22/></svg>">
@@ -126,7 +126,7 @@
             box-shadow: 0 15px 40px rgba(0, 243, 255, 0.4);
         }
 
-        /* === ШАПКА С ЛОГОТИПОМ КАК В ПЕРЕВОДЧИКЕ === */
+        /* === ШАПКА С ЛОГОТИПОМ === */
         .hero {
             text-align: center;
             padding: 6rem 2rem 4rem;
@@ -352,7 +352,93 @@
             box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
         }
 
-        /* === ЦВЕТОВАЯ ПАЛИТРА - ИСПРАВЛЕНО === */
+        /* === ВЫБОР ШРИФТА === */
+        .font-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .font-option {
+            padding: 0.8rem;
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 10px;
+            color: var(--text-dim);
+            cursor: pointer;
+            text-align: center;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .font-option:hover {
+            background: rgba(0, 243, 255, 0.2);
+            border-color: var(--neon-blue);
+        }
+
+        .font-option.active {
+            background: rgba(0, 243, 255, 0.3);
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+        }
+
+        .font-option.premium {
+            background: rgba(255, 0, 255, 0.1);
+            border: 1px solid rgba(255, 0, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .font-option.premium::after {
+            content: 'PRO';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+            color: white;
+            font-size: 0.6rem;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .font-option.premium:hover {
+            background: rgba(255, 0, 255, 0.2);
+            border-color: var(--neon-pink);
+        }
+
+        .font-option.premium.active {
+            background: rgba(255, 0, 255, 0.3);
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+        }
+
+        .font-option.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+            position: relative;
+        }
+
+        .font-option.locked::before {
+            content: '🔒';
+            position: absolute;
+            right: 5px;
+            font-size: 0.8rem;
+        }
+
+        .font-option.locked:hover {
+            background: rgba(0, 243, 255, 0.1);
+            border-color: rgba(0, 243, 255, 0.3);
+        }
+
+        /* === ЦВЕТОВАЯ ПАЛИТРА === */
         .color-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
@@ -459,7 +545,7 @@
             border-radius: 30px;
         }
 
-        /* === ТЕКСТ ПРЕДПРОСМОТРА - ИСПРАВЛЕНО СВЕЧЕНИЕ === */
+        /* === ТЕКСТ ПРЕДПРОСМОТРА === */
         .live-text {
             position: relative;
             z-index: 2;
@@ -488,8 +574,6 @@
         }
 
         .main-preview {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 3rem;
             font-weight: 900;
             margin-bottom: 1rem;
             color: var(--neon-blue);
@@ -501,11 +585,10 @@
             word-wrap: break-word;
             max-width: 100%;
             padding: 0 1rem;
+            font-size: 3rem;
         }
 
         .sub-preview {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.6rem;
             color: var(--neon-cyan);
             text-shadow: 
                 0 0 8px var(--neon-cyan),
@@ -515,6 +598,7 @@
             word-wrap: break-word;
             max-width: 100%;
             padding: 0 1rem;
+            font-size: 1.6rem;
         }
 
         /* === КНОПКИ ДЕЙСТВИЙ === */
@@ -771,6 +855,9 @@
                 grid-template-columns: 1fr; 
                 gap: 1rem;
             }
+            .font-options {
+                grid-template-columns: 1fr;
+            }
             .color-grid { 
                 grid-template-columns: repeat(auto-fill, minmax(35px, 1fr)); 
             }
@@ -805,6 +892,7 @@
                 <li><i class="fas fa-check" style="color:var(--neon-green);"></i> Все премиум-шаблоны</li>
                 <li><i class="fas fa-check" style="color:var(--neon-green);"></i> Приоритетная поддержка</li>
                 <li><i class="fas fa-check" style="color:var(--neon-green);"></i> Анимированные GIF без ограничений</li>
+                <li><i class="fas fa-check" style="color:var(--neon-green);"></i> <strong>Все премиум шрифты</strong></li>
             </div>
             
             <div class="price">399₽ / месяц</div>
@@ -835,7 +923,7 @@
         </div>
     </nav>
     
-    <!-- ШАПКА С ЛОГОТИПОМ КАК В ПЕРЕВОДЧИКЕ -->
+    <!-- ШАПКА С ЛОГОТИПОМ -->
     <section class="hero">
         <div class="logo-container">
             <i class="fas fa-brain logo-icon"></i>
@@ -843,7 +931,7 @@
         </div>
         <p class="hero-subtitle">
             Профессиональный редактор киберпанк-дизайнов с живыми эффектами, 
-            неоновыми свечениями и анимациями в реальном времени.
+            неоновыми свечениями, анимациями и выбором шрифтов.
         </p>
     </section>
     
@@ -869,6 +957,46 @@
                 <div class="control-item">
                     <label for="subText">Второстепенный текст: <span id="subTextLength">0/40</span></label>
                     <input type="text" id="subText" value="Играет в Cyberpunk 2077" maxlength="40">
+                </div>
+            </div>
+            
+            <!-- ШРИФТЫ -->
+            <div class="category">
+                <div class="category-title">
+                    <i class="fas fa-font"></i>
+                    <h3>ШРИФТЫ</h3>
+                </div>
+                <div class="control-item">
+                    <label>Выберите шрифт:</label>
+                    <div class="font-options">
+                        <!-- Бесплатные шрифты -->
+                        <div class="font-option active" data-font="Orbitron" data-family="'Orbitron', sans-serif">
+                            Orbitron
+                        </div>
+                        <div class="font-option" data-font="JetBrains Mono" data-family="'JetBrains Mono', monospace">
+                            JetBrains Mono
+                        </div>
+                        <div class="font-option" data-font="Rajdhani" data-family="'Rajdhani', sans-serif">
+                            Rajdhani
+                        </div>
+                        <div class="font-option" data-font="Arial" data-family="Arial, sans-serif">
+                            Arial
+                        </div>
+                        
+                        <!-- Премиум шрифты -->
+                        <div class="font-option premium locked" data-font="Exo 2" data-family="'Exo 2', sans-serif">
+                            Exo 2
+                        </div>
+                        <div class="font-option premium locked" data-font="Montserrat" data-family="'Montserrat', sans-serif">
+                            Montserrat
+                        </div>
+                        <div class="font-option premium locked" data-font="Poppins" data-family="'Poppins', sans-serif">
+                            Poppins
+                        </div>
+                        <div class="font-option premium locked" data-font="Audiowide" data-family="'Audiowide', cursive">
+                            Audiowide
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -1007,8 +1135,10 @@
             subText: 'Играет в Cyberpunk 2077',
             color: '#00f3ff',
             backgroundColor: '#0a0a14',
-            glowStrength: 15, // Уменьшено с 25 до 15
+            glowStrength: 15,
             bgAnimation: 'grid',
+            font: 'Orbitron',
+            fontFamily: "'Orbitron', sans-serif",
             isSubscribed: false,
             particles: []
         };
@@ -1025,6 +1155,7 @@
             bgAnimation: document.getElementById('bgAnimation'),
             colorOptions: document.querySelectorAll('.color-option[data-color]'),
             bgColorOptions: document.querySelectorAll('.color-option[data-bg-color]'),
+            fontOptions: document.querySelectorAll('.font-option'),
             downloadSimpleBtn: document.getElementById('downloadSimpleBtn'),
             downloadFullBtn: document.getElementById('downloadFullBtn'),
             downloadGifBtn: document.getElementById('downloadGifBtn'),
@@ -1049,10 +1180,23 @@
             
             // Проверяем подписку
             if (localStorage.getItem('nuar_pro') === 'true') {
-                state.isSubscribed = true;
-                elements.subscriptionBtn.innerHTML = '<i class="fas fa-crown"></i> PRO АКТИВНА';
-                elements.subscriptionBtn.style.background = 'linear-gradient(135deg, var(--neon-green), #00b36b)';
+                activatePremium();
             }
+        }
+
+        function activatePremium() {
+            state.isSubscribed = true;
+            elements.subscriptionBtn.innerHTML = '<i class="fas fa-crown"></i> PRO АКТИВНА';
+            elements.subscriptionBtn.style.background = 'linear-gradient(135deg, var(--neon-green), #00b36b)';
+            
+            // Разблокируем премиум шрифты
+            document.querySelectorAll('.font-option.premium.locked').forEach(option => {
+                option.classList.remove('locked');
+                option.classList.remove('premium');
+                option.classList.add('font-option');
+                option.style.cursor = 'pointer';
+                option.innerHTML = option.getAttribute('data-font');
+            });
         }
 
         // ========== НАСТРОЙКА КАНВАСА ==========
@@ -1082,6 +1226,24 @@
             // Инициализация счетчиков
             elements.mainTextLength.textContent = `${state.mainText.length}/30`;
             elements.subTextLength.textContent = `${state.subText.length}/40`;
+
+            // Шрифты
+            elements.fontOptions.forEach(option => {
+                option.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('locked')) {
+                        showNotification('🔒 Этот шрифт доступен только в PRO версии');
+                        elements.subscriptionOverlay.style.display = 'flex';
+                        return;
+                    }
+                    
+                    elements.fontOptions.forEach(o => o.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    state.font = e.target.getAttribute('data-font');
+                    state.fontFamily = e.target.getAttribute('data-family');
+                    updatePreview();
+                });
+            });
 
             // Цвета текста
             elements.colorOptions.forEach(option => {
@@ -1137,6 +1299,13 @@
             elements.buySubscriptionBtn.addEventListener('click', () => {
                 window.open('https://yoomoney.ru/to/4100118454141760', '_blank');
                 showNotification('После оплаты отправьте скриншот на sauronaaaa@yandex.ru');
+                
+                // Симуляция активации PRO (в реальном приложении нужно проверять оплату)
+                setTimeout(() => {
+                    localStorage.setItem('nuar_pro', 'true');
+                    activatePremium();
+                    showNotification('🎉 PRO версия активирована! Доступны все премиум шрифты!');
+                }, 2000);
             });
 
             // Адаптивность
@@ -1146,16 +1315,40 @@
             });
         }
 
-        // ========== ОБНОВЛЕНИЕ ПРЕДПРОСМОТРА - ИСПРАВЛЕНО СВЕЧЕНИЕ ==========
+        // ========== ОБНОВЛЕНИЕ ПРЕДПРОСМОТРА ==========
         function updatePreview() {
             elements.mainPreview.textContent = state.mainText;
             elements.subPreview.textContent = state.subText;
             
-            // УМЕНЬШЕНО СВЕЧЕНИЕ: было 0 0 30px, стало 0 0 10px
+            // Обновляем шрифт
+            elements.mainPreview.style.fontFamily = state.fontFamily;
+            elements.subPreview.style.fontFamily = state.fontFamily;
+            
+            // Обновляем цвет и свечение
             elements.mainPreview.style.color = state.color;
             elements.subPreview.style.color = state.color;
             elements.mainPreview.style.textShadow = `0 0 ${state.glowStrength}px ${state.color}, 0 0 ${state.glowStrength * 0.5}px rgba(255, 255, 255, 0.5)`;
             elements.subPreview.style.textShadow = `0 0 ${state.glowStrength * 0.7}px ${state.color}, 0 0 ${state.glowStrength * 0.3}px rgba(255, 255, 255, 0.3)`;
+            
+            // Автоподбор размера шрифта для длинного текста
+            const mainLength = state.mainText.length;
+            const subLength = state.subText.length;
+            
+            if (mainLength > 20) {
+                elements.mainPreview.style.fontSize = '2.5rem';
+            } else if (mainLength > 15) {
+                elements.mainPreview.style.fontSize = '2.8rem';
+            } else {
+                elements.mainPreview.style.fontSize = '3rem';
+            }
+            
+            if (subLength > 30) {
+                elements.subPreview.style.fontSize = '1.2rem';
+            } else if (subLength > 20) {
+                elements.subPreview.style.fontSize = '1.4rem';
+            } else {
+                elements.subPreview.style.fontSize = '1.6rem';
+            }
             
             // Обновляем размер файла
             const size = 300 + state.mainText.length * 5 + state.subText.length * 3;
@@ -1338,12 +1531,11 @@
                     }
                 }
                 
-                // Текст с нормальным свечением
-                ctx.font = 'bold 100px Orbitron';
+                // Основной текст
+                ctx.font = `bold 100px ${state.font}`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 
-                // Основной текст с разумным свечением
                 ctx.fillStyle = state.color;
                 ctx.shadowColor = state.color;
                 ctx.shadowBlur = state.glowStrength * 3;
@@ -1351,7 +1543,7 @@
                 
                 // Второстепенный текст
                 if (state.subText) {
-                    ctx.font = 'bold 40px Orbitron';
+                    ctx.font = `bold 40px ${state.font}`;
                     ctx.shadowBlur = state.glowStrength * 2;
                     ctx.fillText(state.subText, tempCanvas.width / 2, tempCanvas.height / 2 + 60);
                 }
@@ -1415,8 +1607,9 @@
 
         // ========== CSS ==========
         function copyCss() {
-            const css = `.header-text {
-    font-family: 'Orbitron', sans-serif;
+            const css = `/* CSS для вашего дизайна */
+.header-text {
+    font-family: ${state.fontFamily};
     font-size: 5rem;
     color: ${state.color};
     text-shadow: 0 0 ${state.glowStrength}px ${state.color};
@@ -1424,7 +1617,7 @@
 }
 
 .sub-header {
-    font-family: 'Orbitron', sans-serif;
+    font-family: ${state.fontFamily};
     font-size: 2rem;
     color: ${state.color};
     text-shadow: 0 0 ${state.glowStrength * 0.7}px ${state.color};
@@ -1438,20 +1631,41 @@
 
         // ========== РАНДОМ ДИЗАЙН ==========
         function randomDesign() {
+            const fonts = [
+                { font: 'Orbitron', family: "'Orbitron', sans-serif", premium: false },
+                { font: 'JetBrains Mono', family: "'JetBrains Mono', monospace", premium: false },
+                { font: 'Rajdhani', family: "'Rajdhani', sans-serif", premium: false },
+                { font: 'Arial', family: "Arial, sans-serif", premium: false },
+                { font: 'Exo 2', family: "'Exo 2', sans-serif", premium: true },
+                { font: 'Montserrat', family: "'Montserrat', sans-serif", premium: true },
+                { font: 'Poppins', family: "'Poppins', sans-serif", premium: true },
+                { font: 'Audiowide', family: "'Audiowide', cursive", premium: true }
+            ];
+            
             const colors = ['#00f3ff', '#ff00ff', '#00ff9d', '#ff5500', '#9d00ff', '#ffcc00', '#00ffff', '#ff0066', '#8a2be2'];
             const bgColors = ['#0a0a14', '#000000', '#111827', '#1a1a2e', '#16213e', '#0f3460'];
             const bgAnimations = ['none', 'grid', 'particles', 'waves', 'circuits', 'scan'];
             const mainTexts = ['CYBERSTREAMER LIVE', 'NEON NIGHTS', 'SYNTHWAVE RADIO', 'GAME ZONE', 'TECH TALK', 'FUTURE NOW'];
             const subTexts = ['Прямой эфир 24/7', 'Играю в лучшие игры', 'Создаю цифровое искусство', 'Обсуждаю технологии будущего'];
             
+            // Выбираем только доступные шрифты
+            const availableFonts = fonts.filter(f => !f.premium || state.isSubscribed);
+            const selectedFont = availableFonts[Math.floor(Math.random() * availableFonts.length)];
+            
+            state.font = selectedFont.font;
+            state.fontFamily = selectedFont.family;
             state.color = colors[Math.floor(Math.random() * colors.length)];
             state.backgroundColor = bgColors[Math.floor(Math.random() * bgColors.length)];
-            state.glowStrength = 8 + Math.floor(Math.random() * 15); // Ограничил свечение
+            state.glowStrength = 8 + Math.floor(Math.random() * 15);
             state.bgAnimation = bgAnimations[Math.floor(Math.random() * bgAnimations.length)];
             state.mainText = mainTexts[Math.floor(Math.random() * mainTexts.length)];
             state.subText = subTexts[Math.floor(Math.random() * subTexts.length)];
             
             // Обновляем UI
+            elements.fontOptions.forEach(o => o.classList.remove('active'));
+            const fontElement = document.querySelector(`[data-font="${state.font}"]`);
+            if (fontElement) fontElement.classList.add('active');
+            
             elements.colorOptions.forEach(o => o.classList.remove('active'));
             document.querySelector(`[data-color="${state.color}"]`).classList.add('active');
             
@@ -1480,6 +1694,11 @@
             state.backgroundColor = '#0a0a14';
             state.glowStrength = 15;
             state.bgAnimation = 'grid';
+            state.font = 'Orbitron';
+            state.fontFamily = "'Orbitron', sans-serif";
+            
+            elements.fontOptions.forEach(o => o.classList.remove('active'));
+            document.querySelector(`[data-font="Orbitron"]`).classList.add('active');
             
             elements.colorOptions.forEach(o => o.classList.remove('active'));
             document.querySelector(`[data-color="#00f3ff"]`).classList.add('active');
